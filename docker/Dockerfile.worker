@@ -1,0 +1,21 @@
+FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime
+
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY pyproject.toml ./
+RUN pip install --no-cache-dir -e ".[worker]"
+
+COPY src/ src/
+COPY weights/ weights/
+
+ENV CUDA_VISIBLE_DEVICES=0
+
+# One worker per GPU; concurrency=1 keeps GPU memory usage bounded.
+CMD ["celery", "-A", "forenscope.worker.app", "worker", \
+     "--concurrency=1", \
+     "--loglevel=info", \
+     "-Q", "analysis"]

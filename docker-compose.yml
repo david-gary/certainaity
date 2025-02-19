@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+  nginx:
+    image: nginx:1.25-alpine
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./nginx/forenscope.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certs:/etc/ssl/certs:ro
+      - output:/srv/output:ro
+    depends_on: [api]
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    deploy:
+      replicas: 2
+    environment:
+      FORENSCOPE_REDIS_URL: redis://redis:6379/0
+      FORENSCOPE_OUTPUT_DIR: /output
+      FORENSCOPE_JWT_PUBLIC_KEY_PATH: /run/secrets/jwt_public_key
+    volumes:
+      - output:/output
+    secrets: [jwt_public_key]
+    depends_on: [redis]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/v1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.worker
+    deploy:
+      replicas: 1
+    environment:
+      FORENSCOPE_REDIS_URL: redis://redis:6379/0
+      FORENSCOPE_OUTPUT_DIR: /output
+      CUDA_VISIBLE_DEVICES: "0"
+    volumes:
+      - output:/output
+      - ./weights:/app/weights:ro
+    runtime: nvidia
+    depends_on: [redis]
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.2-alpine
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+volumes:
+  output:
+  redis-data:
+
+secrets:
+  jwt_public_key:
+    file: ./secrets/jwt_public.pem
