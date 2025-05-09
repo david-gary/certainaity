@@ -52,10 +52,14 @@ jobs:
           pytest tests/unit/ \
             -v \
             --tb=short \
+            -x \
             --cov=forenscope \
             --cov-report=xml \
             --cov-report=term-missing \
             --cov-fail-under=85
+
+      - name: Check no critical tests skipped
+        run: grep -r "pytest.mark.critical" tests/ | wc -l
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4
