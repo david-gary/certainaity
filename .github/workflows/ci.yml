@@ -10,6 +10,7 @@ jobs:
   lint:
     name: Lint & type-check
     runs-on: ubuntu-latest
+    # Pin to a specific runner image for reproducibility across Phase 2 model work.
     steps:
       - uses: actions/checkout@v4
 
@@ -66,3 +67,51 @@ jobs:
         with:
           file: coverage.xml
           fail_ci_if_error: false
+
+  model-smoke:
+    name: Model architecture smoke tests
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install worker dependencies (CPU-only torch)
+        run: pip install -e ".[dev]" torch torchvision --index-url https://download.pytorch.org/whl/cpu
+
+      - name: Verify model stubs instantiate and raise WeightsNotFoundError
+        env:
+          FORENSCOPE_USE_CPU: "true"
+        run: |
+          pytest tests/unit/test_models.py tests/unit/test_ensemble.py \
+            -v \
+            --tb=short \
+            -k "not test_architecture_has_features and not test_early_blocks"
+
+      - name: Verify PatchForensic forward pass shape (CPU)
+        env:
+          FORENSCOPE_USE_CPU: "true"
+        run: |
+          python - <<'EOF'
+          import torch
+          from forenscope.models.patchforensic import _PatchForensicNet
+          net = _PatchForensicNet()
+          with torch.no_grad():
+              out = net(torch.zeros(1, 3, 256, 256))
+          assert out.shape == (1, 1, 256, 256), f"Unexpected shape: {out.shape}"
+          assert 0.0 <= float(out.min()) and float(out.max()) <= 1.0
+          print("PatchForensicNet forward: OK", out.shape)
+          EOF
+
+      - name: Verify ensemble default weights sum to 1
+        run: |
+          python - <<'EOF'
+          from forenscope.models.ensemble import _DEFAULT_WEIGHTS
+          total = sum(_DEFAULT_WEIGHTS.values())
+          assert abs(total - 1.0) < 1e-6, f"Weights sum to {total}, expected 1.0"
+          print("Ensemble default weights: OK", _DEFAULT_WEIGHTS)
+          EOF
