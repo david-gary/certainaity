@@ -5,6 +5,7 @@ The Dockerfile resolves ``forenscope.api.main:app`` as the ASGI entrypoint.
 
 from __future__ import annotations
 
+import re
 import time
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
@@ -12,11 +13,23 @@ from typing import AsyncGenerator
 import structlog
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
+from forenscope.api.metrics import REQUEST_LATENCY, REQUESTS_TOTAL
 from forenscope.api.routes import router
 from forenscope.config import get_settings
 
 log = structlog.get_logger()
+
+# Collapse /v1/jobs/<uuid> variants into a single label to prevent cardinality explosion.
+_JOB_PATH_RE = re.compile(
+    r"/v1/jobs/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+    re.IGNORECASE,
+)
+
+
+def _endpoint_label(path: str) -> str:
+    return _JOB_PATH_RE.sub("/v1/jobs/{job_id}", path)
 
 
 @asynccontextmanager
@@ -55,16 +68,30 @@ def create_app() -> FastAPI:
     async def _access_log(request: Request, call_next) -> Response:
         start = time.monotonic()
         response = await call_next(request)
-        elapsed_ms = int((time.monotonic() - start) * 1000)
+        elapsed = time.monotonic() - start
+
+        endpoint = _endpoint_label(request.url.path)
+        REQUEST_LATENCY.labels(endpoint=endpoint).observe(elapsed)
+        REQUESTS_TOTAL.labels(
+            method=request.method,
+            endpoint=endpoint,
+            status_code=str(response.status_code),
+        ).inc()
+
         log.info(
             "http_request",
             method=request.method,
             path=request.url.path,
             status=response.status_code,
-            elapsed_ms=elapsed_ms,
+            elapsed_ms=int(elapsed * 1000),
             client=request.client.host if request.client else None,
         )
         return response
+
+    @application.get("/metrics", include_in_schema=False)
+    async def _prometheus_metrics() -> Response:
+        """Prometheus scrape endpoint — not authenticated; internal use only."""
+        return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
     application.include_router(router)
     return application
