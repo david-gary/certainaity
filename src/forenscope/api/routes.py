@@ -2,24 +2,27 @@
 
 Routes
 ------
-GET  /v1/health                 — liveness probe (no auth)
-POST /v1/analyze                — submit an image for analysis
-GET  /v1/jobs/{job_id}          — poll job status
-GET  /v1/jobs/{job_id}/report   — retrieve JSON report
-GET  /v1/jobs/{job_id}/report.pdf — retrieve PDF report
+GET  /v1/health                     — liveness probe (no auth)
+POST /v1/analyze                    — submit an image for analysis
+GET  /v1/jobs/{job_id}              — poll job status
+GET  /v1/jobs/{job_id}/report       — retrieve JSON report
+GET  /v1/jobs/{job_id}/report.pdf   — retrieve PDF report
 """
 
 from __future__ import annotations
 
 import base64
 import json
+import os
 import uuid
 
 import structlog
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile, status
 from fastapi.responses import FileResponse
 
 from forenscope.api.auth import verify_jwt
+from forenscope.api.limiter import limiter
+from forenscope.api.metrics import JOBS_REJECTED, JOBS_SUBMITTED
 from forenscope.api.schemas import (
     AnalysisReportResponse,
     HealthResponse,
@@ -37,6 +40,9 @@ from forenscope.exceptions import (
 
 log = structlog.get_logger()
 router = APIRouter(prefix="/v1")
+
+# Read from env at import time; restart the process to pick up changes.
+_ANALYZE_RATE = f"{os.environ.get('FORENSCOPE_RATE_LIMIT_PER_MINUTE', '60')}/minute"
 
 
 @router.get("/health", response_model=HealthResponse, tags=["meta"])
@@ -61,7 +67,9 @@ async def health() -> HealthResponse:
     status_code=status.HTTP_202_ACCEPTED,
     tags=["analysis"],
 )
+@limiter.limit(_ANALYZE_RATE)
 async def submit_image(
+    request: Request,
     file: UploadFile = File(..., description="Image file (JPEG, PNG, TIFF, WEBP ≤ 50 MB)"),
     _token: dict = Depends(verify_jwt),
 ) -> SubmitResponse:
@@ -78,10 +86,12 @@ async def submit_image(
     try:
         ingest_image(raw)
     except FileTooLargeError as exc:
+        JOBS_REJECTED.labels(reason="too_large").inc()
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail=str(exc)
         ) from exc
     except (UnsupportedFormatError, CorruptImageError, ImageTooSmallError) as exc:
+        JOBS_REJECTED.labels(reason="invalid_image").inc()
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
         ) from exc
@@ -92,6 +102,7 @@ async def submit_image(
         args=[job_id, image_b64, file.filename or "upload"],
         task_id=job_id,
     )
+    JOBS_SUBMITTED.inc()
     log.info("job_enqueued", job_id=job_id, filename=file.filename)
     return SubmitResponse(job_id=job_id, poll_url=f"/v1/jobs/{job_id}")
 

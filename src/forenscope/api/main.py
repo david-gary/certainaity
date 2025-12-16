@@ -14,7 +14,10 @@ import structlog
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
+from forenscope.api.limiter import limiter
 from forenscope.api.metrics import REQUEST_LATENCY, REQUESTS_TOTAL
 from forenscope.api.routes import router
 from forenscope.config import get_settings
@@ -55,6 +58,9 @@ def create_app() -> FastAPI:
         docs_url="/docs",
         redoc_url="/redoc",
     )
+
+    application.state.limiter = limiter
+    application.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
     application.add_middleware(
         CORSMiddleware,
