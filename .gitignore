@@ -566,7 +566,6 @@ PublishScripts/
 # DOCKER & CONTAINERS
 # ==============================================================================
 .docker/
-docker-compose.override.yml
 docker-compose.local.yml
 .dockerenv
 *.dockerignore

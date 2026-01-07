@@ -1,0 +1,40 @@
+# docker-compose.override.yml — local development overrides.
+#
+# Docker Compose merges this file automatically with docker-compose.yml when
+# both are present (no flags needed).  Do not commit secrets here.
+#
+# Usage:
+#   docker-compose up          # picks up override automatically
+#   docker-compose up --no-deps api  # start just the API for rapid iteration
+
+version: "3.9"
+
+services:
+  api:
+    # Single replica is enough locally; no load-balancer needed.
+    deploy:
+      replicas: 1
+    environment:
+      FORENSCOPE_USE_CPU: "true"
+      FORENSCOPE_RATE_LIMIT_PER_MINUTE: "120"
+    # Expose the API directly so you can curl/benchmark without nginx.
+    ports:
+      - "8000:8000"
+
+  worker:
+    deploy:
+      replicas: 1
+    environment:
+      FORENSCOPE_USE_CPU: "true"
+    # Replace the NVIDIA runtime with the default runc runtime for CPU-only dev.
+    # Remove this line if you have a local NVIDIA GPU and want to test GPU inference.
+    runtime: runc
+
+  redis:
+    # Expose Redis locally for direct inspection with redis-cli.
+    ports:
+      - "6379:6379"
+
+  nginx:
+    # Skip nginx locally; talk to the API directly on port 8000.
+    profiles: ["production"]
