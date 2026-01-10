@@ -83,6 +83,11 @@ jobs:
       - name: Install api + dev dependencies
         run: pip install -e ".[dev,api]"
 
+      - name: CLI smoke test
+        run: |
+          # Verify the entrypoint is importable and --help exits cleanly.
+          forenscope analyze --help
+
       - name: Run integration tests
         env:
           FORENSCOPE_USE_CPU: "true"

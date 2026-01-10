@@ -29,7 +29,8 @@ api = [
     "redis>=5.0",
     "reportlab>=4.1",
     "celery[redis]>=5.3",
-    "structlog>=24.1",
+    "slowapi>=0.1.9",
+    "prometheus-client>=0.20",
 ]
 worker = [
     "celery[redis]>=5.3",
