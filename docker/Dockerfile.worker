@@ -1,20 +1,53 @@
-FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime
+# syntax=docker/dockerfile:1.6
+# ── Stage 1: build wheel ────────────────────────────────────────────────────
+FROM python:3.11-slim AS builder
+
+WORKDIR /build
+
+RUN pip install --no-cache-dir build==1.2.1
+
+COPY pyproject.toml ./
+COPY src/ src/
+
+RUN python -m build --wheel --outdir /dist
+
+# ── Stage 2: runtime image ──────────────────────────────────────────────────
+# Use the CUDA runtime image for GPU inference; pin to a specific digest in
+# production to prevent unexpected base-image changes.
+FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime AS runtime
+
+# System deps for PIL (libjpeg, libpng) and OpenCV-headless (libgl1).
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        libgl1 \
+        libglib2.0-0 \
+        libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN groupadd --gid 10001 appgroup \
+    && useradd --uid 10001 --gid appgroup --no-create-home --shell /bin/false appuser
 
 WORKDIR /app
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 \
-    && rm -rf /var/lib/apt/lists/*
+# Install the forenscope wheel with worker extras on top of the base image's torch.
+COPY --from=builder /dist/*.whl /tmp/
+RUN pip install --no-cache-dir /tmp/*.whl"[worker]" \
+    && rm -f /tmp/*.whl
 
-COPY pyproject.toml ./
-RUN pip install --no-cache-dir -e ".[worker]"
+# Weights are mounted as a read-only volume in production (never baked in).
+RUN mkdir -p /output /weights \
+    && chown appuser:appgroup /output
 
-COPY src/ src/
-COPY weights/ weights/
+USER appuser
 
-ENV CUDA_VISIBLE_DEVICES=0
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    CUDA_VISIBLE_DEVICES=0
 
-# One worker per GPU; concurrency=1 keeps GPU memory usage bounded.
+HEALTHCHECK --interval=60s --timeout=10s --retries=3 --start-period=30s \
+    CMD celery -A forenscope.worker.app inspect ping -d celery@$$HOSTNAME || exit 1
+
+# One worker per GPU keeps GPU memory usage bounded.
 CMD ["celery", "-A", "forenscope.worker.app", "worker", \
      "--concurrency=1", \
      "--loglevel=info", \

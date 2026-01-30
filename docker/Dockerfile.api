@@ -1,25 +1,48 @@
-FROM python:3.11-slim
+# syntax=docker/dockerfile:1.6
+# ── Stage 1: build wheel ────────────────────────────────────────────────────
+FROM python:3.11-slim AS builder
+
+WORKDIR /build
+
+RUN pip install --no-cache-dir build==1.2.1
+
+COPY pyproject.toml ./
+COPY src/ src/
+
+RUN python -m build --wheel --outdir /dist
+
+# ── Stage 2: runtime image ──────────────────────────────────────────────────
+FROM python:3.11-slim AS runtime
+
+# Principle of least privilege: dedicated non-root user, fixed UID for volume ownership.
+RUN groupadd --gid 10001 appgroup \
+    && useradd --uid 10001 --gid appgroup --no-create-home --shell /bin/false appuser
 
 WORKDIR /app
 
-COPY pyproject.toml ./
-RUN pip install --no-cache-dir -e ".[api]"
+# Install only the wheel + api extras; no build tools in the final image.
+COPY --from=builder /dist/*.whl /tmp/
+RUN pip install --no-cache-dir /tmp/*.whl"[api]" \
+    && rm -f /tmp/*.whl
 
-COPY src/ src/
-
-RUN useradd --no-create-home --shell /bin/false appuser \
-    && mkdir -p /output \
-    && chown appuser:appuser /output
+# Output dir writable by appuser; secrets mounted at runtime (Docker secrets).
+RUN mkdir -p /output /run/secrets \
+    && chown appuser:appgroup /output
 
 USER appuser
 
 EXPOSE 8000
 
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=15s \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/v1/health')"
+
+# Disable Python bytecode writes and enable unbuffered stdout for structured logs.
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
 CMD ["uvicorn", "forenscope.api.main:app", \
      "--host", "0.0.0.0", \
      "--port", "8000", \
      "--workers", "4", \
-     "--loop", "uvloop"]
+     "--loop", "uvloop", \
+     "--access-log"]

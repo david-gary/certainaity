@@ -1,0 +1,31 @@
+# Never bake secrets or local overrides into images
+.env
+.env.*
+secrets/
+weights/
+
+# Development artifacts
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+coverage.xml
+.coverage
+
+# Git and CI
+.git/
+.github/
+.gitignore
+
+# Local dev overrides
+docker-compose.override.yml
+
+# Docs and scripts (not needed in production image)
+docs/
+scripts/
+plans/
+documents/
+tests/

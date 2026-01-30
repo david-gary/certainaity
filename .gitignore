@@ -568,7 +568,7 @@ PublishScripts/
 .docker/
 docker-compose.local.yml
 .dockerenv
-*.dockerignore
+# *.dockerignore  # tracked: docker/.dockerignore is a project artifact
 docker-volumes/
 volumes/
 
