@@ -101,6 +101,45 @@ jobs:
             --tb=short \
             -x
 
+  container-scan:
+    name: Container security scan (Trivy)
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build api image for scanning
+        run: |
+          docker build \
+            -f docker/Dockerfile.api \
+            -t forenscope-api:scan \
+            .
+
+      - name: Run Trivy vulnerability scan
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          image-ref: forenscope-api:scan
+          format: table
+          exit-code: "1"
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+
+      - name: Build worker image for scanning
+        run: |
+          docker build \
+            -f docker/Dockerfile.worker \
+            -t forenscope-worker:scan \
+            .
+
+      - name: Run Trivy scan on worker image
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          image-ref: forenscope-worker:scan
+          format: table
+          exit-code: "1"
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+
   model-smoke:
     name: Model architecture smoke tests
     runs-on: ubuntu-latest
