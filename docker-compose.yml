@@ -10,7 +10,16 @@ services:
       - ./nginx/forenscope.conf:/etc/nginx/conf.d/default.conf:ro
       - ./certs:/etc/ssl/certs:ro
       - output:/srv/output:ro
-    depends_on: [api]
+    depends_on: [api, frontend]
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    # Port 3000 is for direct access in local dev; in production nginx proxies through.
+    ports:
+      - "3000:80"
     restart: unless-stopped
 
   api:
