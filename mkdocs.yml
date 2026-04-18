@@ -1,0 +1,60 @@
+site_name: ForenScope
+site_description: Forensic image manipulation detection — documentation
+site_url: https://david-gary.github.io/forenscope
+repo_url: https://github.com/david-gary/forenscope
+repo_name: david-gary/forenscope
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - scheme: slate
+      primary: blue
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    - scheme: default
+      primary: blue
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - content.code.annotate
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - tables
+  - attr_list
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - Guides:
+    - Getting Started: guides/getting-started.md
+    - Docker Deployment: guides/deployment.md
+    - Kubernetes: guides/kubernetes.md
+    - Contributing: guides/contributing.md
+  - Reference:
+    - CLI: reference/cli.md
+    - REST API: reference/api.md
+    - Configuration: reference/configuration.md
+  - Architecture:
+    - Overview: architecture/overview.md
+    - Forensic Pipeline: architecture/pipeline.md
+    - Models: architecture/models.md
