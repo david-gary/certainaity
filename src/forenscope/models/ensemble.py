@@ -11,17 +11,21 @@ from scipy.ndimage import label as cc_label
 
 from forenscope.config import get_settings
 from forenscope.models.base import ForensicModel, ModelName
+from forenscope.models.gandec import GANDetector
 from forenscope.models.inpainting import InpaintingDetector
 from forenscope.models.mantranet import MantraNet
 from forenscope.models.patchforensic import PatchForensic
 from forenscope.models.spsl import SPSL
 
 # Default ensemble weights from architecture.md §4.3 ensemble fusion.
+# GANDetector weight is 0 by default so it does not affect v1.0 results;
+# set to a positive value (e.g. 0.10) once gandec_v1.pt weights are available.
 _DEFAULT_WEIGHTS: dict[ModelName, float] = {
     ModelName.PATCH_FORENSIC: 0.35,
     ModelName.MANTRA_NET: 0.30,
     ModelName.SPSL: 0.20,
     ModelName.INPAINTING_DETECTOR: 0.15,
+    ModelName.GAN_DETECTOR: 0.0,
 }
 
 
@@ -66,6 +70,7 @@ class Ensemble:
             ModelName.MANTRA_NET: MantraNet(weights_dir, device),
             ModelName.SPSL: SPSL(weights_dir, device),
             ModelName.INPAINTING_DETECTOR: InpaintingDetector(weights_dir, device),
+            ModelName.GAN_DETECTOR: GANDetector(weights_dir, device),
         }
 
     # ------------------------------------------------------------------

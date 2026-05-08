@@ -23,6 +23,7 @@ class ModelName(StrEnum):
     MANTRA_NET = "MantraNet"
     SPSL = "SPSL"
     INPAINTING_DETECTOR = "InpaintingDetector"
+    GAN_DETECTOR = "GANDetector"
 
 
 class ForensicModel(ABC):
