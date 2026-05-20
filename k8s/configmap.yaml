@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: forenscope-config
+  namespace: forenscope
+data:
+  FORENSCOPE_REDIS_URL: "redis://forenscope-redis:6379/0"
+  FORENSCOPE_OUTPUT_DIR: "/output"
+  FORENSCOPE_WEIGHTS_DIR: "/weights"
+  FORENSCOPE_MAX_FILE_BYTES: "52428800"
+  FORENSCOPE_MIN_IMAGE_DIMENSION: "64"
+  FORENSCOPE_MAX_IMAGE_DIMENSION: "20000"
+  FORENSCOPE_ENSEMBLE_THRESHOLD: "0.65"
+  FORENSCOPE_RATE_LIMIT_PER_MINUTE: "60"
+  FORENSCOPE_USE_CPU: "false"
+  FORENSCOPE_FEATURE_WORKERS: "4"

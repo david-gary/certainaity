@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: forenscope-api
+  namespace: forenscope
+  labels:
+    app: forenscope-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: forenscope-api
+  template:
+    metadata:
+      labels:
+        app: forenscope-api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+      containers:
+        - name: api
+          image: ghcr.io/david-gary/forenscope-api:latest
+          ports:
+            - containerPort: 8000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: forenscope-config
+          env:
+            - name: FORENSCOPE_JWT_PUBLIC_KEY_PATH
+              value: /run/secrets/jwt_public.pem
+          volumeMounts:
+            - name: output
+              mountPath: /output
+            - name: jwt-secret
+              mountPath: /run/secrets
+              readOnly: true
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          livenessProbe:
+            httpGet:
+              path: /v1/health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /v1/health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+      volumes:
+        - name: output
+          persistentVolumeClaim:
+            claimName: forenscope-output
+        - name: jwt-secret
+          secret:
+            secretName: forenscope-jwt
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: forenscope-api
+  namespace: forenscope
+spec:
+  selector:
+    app: forenscope-api
+  ports:
+    - port: 8000
+      targetPort: 8000
+      name: http
