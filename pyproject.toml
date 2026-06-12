@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "forenscope"
-version = "1.0.0"  # released 2026-02-28
+version = "1.1.0"  # released 2026-06-12
 description = "Forensic image manipulation detection system"
 requires-python = ">=3.11"
 dependencies = [
