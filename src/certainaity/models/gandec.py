@@ -62,6 +62,7 @@ class GANDetector(ForensicModel):
         is_gan = prob_map.mean() > 0.5
     """
 
+    MODEL_NAME = ModelName.GAN_DETECTOR
     WEIGHT_FILE = "gandec_v1.pt"
 
     def _load_weights(self) -> None:
@@ -104,6 +105,7 @@ def _build_gandec_net() -> object:
     """
     import torch
     import torch.nn as nn
+    import torch.nn.functional as F
 
     try:
         from transformers import CLIPVisionModel
@@ -139,7 +141,10 @@ def _build_gandec_net() -> object:
         def forward(
             self, x: torch.Tensor
         ) -> tuple[torch.Tensor, torch.Tensor]:
-            outputs = self.backbone(pixel_values=x)
+            # ViT-L/14 expects (B, 3, 224, 224) in [-1, 1]
+            x_clip = F.interpolate(x, size=(224, 224), mode="bilinear", align_corners=False)
+            x_clip = x_clip * 2.0 - 1.0
+            outputs = self.backbone(pixel_values=x_clip)
             # last_hidden_state: (B, 1 + num_patches, hidden)
             cls_token = outputs.last_hidden_state[:, 0, :]      # (B, hidden)
             patch_tokens = outputs.last_hidden_state[:, 1:, :]  # (B, 256, hidden)

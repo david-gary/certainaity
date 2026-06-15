@@ -57,11 +57,13 @@ class _SPSLBackbone(nn.Module):
         self.head = _ProjectionHead(1024, _EMB_DIM)
 
     def forward(self, x: "torch.Tensor") -> "torch.Tensor":
-        # Placeholder: full forward pass requires trained weights.
-        raise NotImplementedError(
-            "SPSL forward pass requires trained weights. "
-            "Run scripts/train_spsl.py to produce a checkpoint."
-        )
+        x = self.stem(x)
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = self.pool(x)
+        x = torch.flatten(x, 1)
+        return self.head(x)
 
 
 class _SPSLModel(nn.Module):
@@ -84,10 +86,27 @@ class _SPSLModel(nn.Module):
         self._faiss_index = None   # type: ignore[assignment]
 
     def forward(self, x: "torch.Tensor") -> "torch.Tensor":
-        raise NotImplementedError(
-            "SPSL forward pass requires trained weights and, optionally, a "
-            "FAISS index. Run scripts/train_spsl.py to produce both."
-        )
+        B, C, H, W = x.shape
+        # Extract overlapping patches: (B, C, grid_h, grid_w, P, P)
+        patches = x.unfold(2, _PATCH_SIZE, _PATCH_STRIDE).unfold(3, _PATCH_SIZE, _PATCH_STRIDE)
+        grid_h, grid_w = patches.shape[2], patches.shape[3]
+        N = grid_h * grid_w
+        # Flatten to (B*N, C, P, P) for a single batched backbone call
+        patches = patches.contiguous().view(B * N, C, _PATCH_SIZE, _PATCH_SIZE)
+        # Embed: (B*N, _EMB_DIM), L2-normalised by the projection head
+        emb = self.backbone(patches).view(B, N, _EMB_DIM)
+        # Score each patch by cosine distance to its k nearest neighbours
+        anomaly_maps = []
+        k = min(5, N - 1)
+        for b in range(B):
+            e = emb[b]                          # (N, _EMB_DIM)
+            sim = e @ e.T                       # (N, N) — dot product = cosine sim (normalised)
+            sim.fill_diagonal_(float("-inf"))
+            topk_sim, _ = sim.topk(k, dim=1)   # (N, k)
+            score = (1.0 - topk_sim.mean(dim=1)).clamp(0.0, 1.0)
+            anomaly_maps.append(score.view(grid_h, grid_w))
+        out = torch.stack(anomaly_maps, dim=0).unsqueeze(1)  # (B, 1, grid_h, grid_w)
+        return F.interpolate(out, size=(H, W), mode="bilinear", align_corners=False)
 
     def load_faiss_index(self, index_path: Path) -> None:
         """Load a pre-built FAISS flat-IP index from disk."""
