@@ -76,7 +76,7 @@ export default function ReportView({ report, token: _token }: Props) {
         </div>
         <a
           href={pdfUrl(report.job_id)}
-          download={`forenscope-${report.job_id}.pdf`}
+          download={`certainaity-${report.job_id}.pdf`}
           className="px-4 py-2 bg-brand-700 hover:bg-brand-500 rounded-lg text-sm font-medium transition-colors"
         >
           Download PDF

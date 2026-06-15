@@ -1,8 +1,8 @@
-# ForenScope — Project Timeline & Milestones
+# Certainaity — Project Timeline & Milestones
 
 ## Summary
 
-ForenScope targets a v1.0 production release in Q2 2025. The project is divided into four phases: Foundation, Model Development, Integration & Testing, and Release.
+Certainaity targets a v1.0 production release in Q2 2025. The project is divided into four phases: Foundation, Model Development, Integration & Testing, and Release.
 
 ---
 
@@ -98,7 +98,7 @@ DEFACTO and NIST 16 require signed data use agreements. Applications were submit
 
 - [ ] All four models meet or exceed target benchmark metrics.
 - [ ] Weights exported to `weights/` and checksums committed to `weights/checksums.sha256`.
-- [ ] MLflow experiment `forenscope/ensemble/v1` logged with final weights `[w1, w2, w3, w4]`.
+- [ ] MLflow experiment `certainaity/ensemble/v1` logged with final weights `[w1, w2, w3, w4]`.
 
 ### GPU Allocation Plan
 

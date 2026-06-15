@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from forenscope.features.cfa import compute_cfa_map, cfa_summary, _linear_prediction_residual
+from certainaity.features.cfa import compute_cfa_map, cfa_summary, _linear_prediction_residual
 
 
 class TestLinearPredictionResidual:

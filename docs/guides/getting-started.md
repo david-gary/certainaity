@@ -9,16 +9,16 @@
 ## Install the CLI
 
 ```bash
-pip install forenscope            # from PyPI (v1.0+)
+pip install certainaity            # from PyPI (v1.0+)
 # or from source:
-git clone https://github.com/david-gary/forenscope.git
-cd forenscope && pip install -e ".[api]"
+git clone https://github.com/david-gary/certainaity.git
+cd certainaity && pip install -e ".[api]"
 ```
 
 ## Analyze an image locally
 
 ```bash
-forenscope analyze suspicious.jpg
+certainaity analyze suspicious.jpg
 ```
 
 Example output:
@@ -63,7 +63,7 @@ python scripts/generate_keys.py
 
 ```bash
 cp .env.example .env
-# Edit .env: set FORENSCOPE_JWT_PUBLIC_KEY_PATH, FORENSCOPE_REDIS_URL, etc.
+# Edit .env: set CERTAINAITY_JWT_PUBLIC_KEY_PATH, CERTAINAITY_REDIS_URL, etc.
 ```
 
 ### 3. Start services

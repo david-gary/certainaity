@@ -2,7 +2,7 @@
 
 ## Base class: `ForensicModel`
 
-All four models extend `forenscope.models.base.ForensicModel`. The base class handles:
+All four models extend `certainaity.models.base.ForensicModel`. The base class handles:
 
 - **Lazy weight loading**: weights are loaded on the first `predict()` call, not at import time.
 - **Padding**: images are padded to multiples of 32 before inference and cropped back.
@@ -25,7 +25,7 @@ def _forward(self, x: torch.Tensor) -> torch.Tensor:
 
 A 9-layer fully-convolutional network trained on the CASIA v2 + DEFACTO datasets with a curriculum training strategy (easy negatives first, hard negatives after epoch 30). The decoder uses skip connections and a sigmoid output head.
 
-Training details: 90 epochs, AdamW lr=1e-4, focal loss γ=2, MLflow experiment `forenscope/patchforensic/v1`.
+Training details: 90 epochs, AdamW lr=1e-4, focal loss γ=2, MLflow experiment `certainaity/patchforensic/v1`.
 
 ## MantraNet
 

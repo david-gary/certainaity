@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from forenscope.features.noise import compute_noise_map, noise_summary
+from certainaity.features.noise import compute_noise_map, noise_summary
 
 
 class TestComputeNoiseMap:

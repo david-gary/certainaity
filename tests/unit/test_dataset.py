@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from forenscope.data.dataset import ForensicDataset
+from certainaity.data.dataset import ForensicDataset
 
 
 @pytest.fixture()

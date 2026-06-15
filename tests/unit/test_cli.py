@@ -1,4 +1,4 @@
-"""Unit tests for the forenscope CLI entrypoint."""
+"""Unit tests for the certainaity CLI entrypoint."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 from PIL import Image as PILImage
 
-from forenscope.cli import _build_parser, main
+from certainaity.cli import _build_parser, main
 
 
 def _write_jpeg(path: Path, size: tuple[int, int] = (128, 128)) -> None:
@@ -55,7 +55,7 @@ class TestParser:
 class TestAnalyzeCmd:
     def test_missing_file_exits_with_1(self, tmp_path: Path, monkeypatch) -> None:
         monkeypatch.setattr(
-            sys, "argv", ["forenscope", "analyze", str(tmp_path / "ghost.jpg")]
+            sys, "argv", ["certainaity", "analyze", str(tmp_path / "ghost.jpg")]
         )
         with pytest.raises(SystemExit) as exc:
             main()
@@ -64,7 +64,7 @@ class TestAnalyzeCmd:
     def test_corrupt_file_exits_with_1(self, tmp_path: Path, monkeypatch) -> None:
         bad = tmp_path / "corrupt.jpg"
         bad.write_bytes(b"not an image")
-        monkeypatch.setattr(sys, "argv", ["forenscope", "analyze", str(bad)])
+        monkeypatch.setattr(sys, "argv", ["certainaity", "analyze", str(bad)])
         with pytest.raises(SystemExit) as exc:
             main()
         assert exc.value.code == 1
@@ -72,7 +72,7 @@ class TestAnalyzeCmd:
     def test_valid_jpeg_exits_with_0(self, tmp_path: Path, monkeypatch) -> None:
         img = tmp_path / "photo.jpg"
         _write_jpeg(img)
-        monkeypatch.setattr(sys, "argv", ["forenscope", "analyze", str(img)])
+        monkeypatch.setattr(sys, "argv", ["certainaity", "analyze", str(img)])
         with pytest.raises(SystemExit) as exc:
             main()
         assert exc.value.code == 0
@@ -80,7 +80,7 @@ class TestAnalyzeCmd:
     def test_stdout_is_valid_json(self, tmp_path: Path, monkeypatch, capsys) -> None:
         img = tmp_path / "photo.jpg"
         _write_jpeg(img)
-        monkeypatch.setattr(sys, "argv", ["forenscope", "analyze", str(img)])
+        monkeypatch.setattr(sys, "argv", ["certainaity", "analyze", str(img)])
         with pytest.raises(SystemExit):
             main()
         result = json.loads(capsys.readouterr().out)
@@ -89,7 +89,7 @@ class TestAnalyzeCmd:
     def test_output_contains_sha256(self, tmp_path: Path, monkeypatch, capsys) -> None:
         img = tmp_path / "evidence.jpg"
         _write_jpeg(img)
-        monkeypatch.setattr(sys, "argv", ["forenscope", "analyze", str(img)])
+        monkeypatch.setattr(sys, "argv", ["certainaity", "analyze", str(img)])
         with pytest.raises(SystemExit):
             main()
         result = json.loads(capsys.readouterr().out)
@@ -98,7 +98,7 @@ class TestAnalyzeCmd:
     def test_default_job_id_is_filename_stem(self, tmp_path: Path, monkeypatch, capsys) -> None:
         img = tmp_path / "exhibit_a.jpg"
         _write_jpeg(img)
-        monkeypatch.setattr(sys, "argv", ["forenscope", "analyze", str(img)])
+        monkeypatch.setattr(sys, "argv", ["certainaity", "analyze", str(img)])
         with pytest.raises(SystemExit):
             main()
         assert json.loads(capsys.readouterr().out)["job_id"] == "exhibit_a"
@@ -107,7 +107,7 @@ class TestAnalyzeCmd:
         img = tmp_path / "photo.jpg"
         _write_jpeg(img)
         monkeypatch.setattr(
-            sys, "argv", ["forenscope", "analyze", str(img), "--job-id", "case-999"]
+            sys, "argv", ["certainaity", "analyze", str(img), "--job-id", "case-999"]
         )
         with pytest.raises(SystemExit):
             main()
@@ -118,7 +118,7 @@ class TestAnalyzeCmd:
     ) -> None:
         img = tmp_path / "clean.jpg"
         _write_jpeg(img)
-        monkeypatch.setattr(sys, "argv", ["forenscope", "analyze", str(img)])
+        monkeypatch.setattr(sys, "argv", ["certainaity", "analyze", str(img)])
         with pytest.raises(SystemExit):
             main()
         result = json.loads(capsys.readouterr().out)
@@ -132,7 +132,7 @@ class TestAnalyzeCmd:
         monkeypatch.setattr(
             sys,
             "argv",
-            ["forenscope", "analyze", str(img), "--output-json", str(out)],
+            ["certainaity", "analyze", str(img), "--output-json", str(out)],
         )
         with pytest.raises(SystemExit) as exc:
             main()
@@ -150,7 +150,7 @@ class TestAnalyzeCmd:
         monkeypatch.setattr(
             sys,
             "argv",
-            ["forenscope", "analyze", str(img), "--output-json", str(out)],
+            ["certainaity", "analyze", str(img), "--output-json", str(out)],
         )
         with pytest.raises(SystemExit):
             main()

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""ForenScope API latency benchmark.
+"""Certainaity API latency benchmark.
 
 Submits N synthetic JPEG images to the POST /v1/analyze endpoint and
-measures per-request wall-clock latency.  Requires a running ForenScope
+measures per-request wall-clock latency.  Requires a running Certainaity
 API server and a valid JWT bearer token.
 
 Usage
@@ -92,7 +92,7 @@ def _print_summary(latencies: list[float], errors: int) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="ForenScope API latency benchmark",
+        description="Certainaity API latency benchmark",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(

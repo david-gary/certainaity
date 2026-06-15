@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: forenscope-api
-  namespace: forenscope
+  name: certainaity-api
+  namespace: certainaity
   labels:
-    app: forenscope-api
+    app: certainaity-api
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: forenscope-api
+      app: certainaity-api
   template:
     metadata:
       labels:
-        app: forenscope-api
+        app: certainaity-api
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "8000"
@@ -25,15 +25,15 @@ spec:
         runAsGroup: 10001
       containers:
         - name: api
-          image: ghcr.io/david-gary/forenscope-api:latest
+          image: ghcr.io/david-gary/certainaity-api:latest
           ports:
             - containerPort: 8000
               name: http
           envFrom:
             - configMapRef:
-                name: forenscope-config
+                name: certainaity-config
           env:
-            - name: FORENSCOPE_JWT_PUBLIC_KEY_PATH
+            - name: CERTAINAITY_JWT_PUBLIC_KEY_PATH
               value: /run/secrets/jwt_public.pem
           volumeMounts:
             - name: output
@@ -66,19 +66,19 @@ spec:
       volumes:
         - name: output
           persistentVolumeClaim:
-            claimName: forenscope-output
+            claimName: certainaity-output
         - name: jwt-secret
           secret:
-            secretName: forenscope-jwt
+            secretName: certainaity-jwt
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: forenscope-api
-  namespace: forenscope
+  name: certainaity-api
+  namespace: certainaity
 spec:
   selector:
-    app: forenscope-api
+    app: certainaity-api
   ports:
     - port: 8000
       targetPort: 8000

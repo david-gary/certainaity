@@ -9,13 +9,13 @@ import struct
 import pytest
 from PIL import Image
 
-from forenscope.exceptions import (
+from certainaity.exceptions import (
     CorruptImageError,
     FileTooLargeError,
     ImageTooSmallError,
     UnsupportedFormatError,
 )
-from forenscope.ingest import (
+from certainaity.ingest import (
     IngestedImage,
     _check_thumbnail_mismatch,
     _extract_quantization_tables,

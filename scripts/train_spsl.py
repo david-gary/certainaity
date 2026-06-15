@@ -70,8 +70,8 @@ def main() -> None:
     import mlflow
     from torch.utils.data import DataLoader
 
-    from forenscope.data.dataset import ForensicDataset
-    from forenscope.models.spsl import _SPSLBackbone
+    from certainaity.data.dataset import ForensicDataset
+    from certainaity.models.spsl import _SPSLBackbone
 
     torch.manual_seed(args.seed)
 

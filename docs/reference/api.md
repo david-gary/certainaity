@@ -11,7 +11,7 @@ All protected endpoints require `Authorization: Bearer <jwt>`.
 Submit an image for forensic analysis.
 
 **Auth required**: Yes  
-**Rate limited**: Yes (default 60 req/min/IP; configurable via `FORENSCOPE_RATE_LIMIT_PER_MINUTE`)
+**Rate limited**: Yes (default 60 req/min/IP; configurable via `CERTAINAITY_RATE_LIMIT_PER_MINUTE`)
 
 ### Request
 
@@ -37,7 +37,7 @@ Submit an image for forensic analysis.
 |--------|-------|
 | `400` | Invalid image format, image too small/large, corrupt file |
 | `401` | Missing or invalid JWT |
-| `413` | File exceeds `FORENSCOPE_MAX_FILE_BYTES` (default 50 MB) |
+| `413` | File exceeds `CERTAINAITY_MAX_FILE_BYTES` (default 50 MB) |
 | `429` | Rate limit exceeded |
 
 ---

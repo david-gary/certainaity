@@ -1,8 +1,8 @@
-# ForenScope — Deployment Plan
+# Certainaity — Deployment Plan
 
 ## Overview
 
-ForenScope v1.0 targets a self-hosted deployment on a single GPU server for initial use. The system is containerized with Docker and orchestrated with Docker Compose. A production-grade Kubernetes path is described for v1.1 and beyond.
+Certainaity v1.0 targets a self-hosted deployment on a single GPU server for initial use. The system is containerized with Docker and orchestrated with Docker Compose. A production-grade Kubernetes path is described for v1.1 and beyond.
 
 ---
 
@@ -62,7 +62,7 @@ ForenScope v1.0 targets a self-hosted deployment on a single GPU server for init
 
 ## Docker Images
 
-### `forenscope-api`
+### `certainaity-api`
 
 ```dockerfile
 FROM python:3.11-slim
@@ -76,13 +76,13 @@ COPY weights/ weights/
 
 USER nobody
 EXPOSE 8000
-CMD ["uvicorn", "forenscope.api.main:app", "--host", "0.0.0.0", "--port", "8000", \
+CMD ["uvicorn", "certainaity.api.main:app", "--host", "0.0.0.0", "--port", "8000", \
      "--workers", "4", "--loop", "uvloop"]
 ```
 
 The API container does NOT load ML models. It validates input, dispatches to Redis queue, and serves artifacts from the output volume. This keeps the API container lightweight (< 1 GB image) and independently scalable.
 
-### `forenscope-worker`
+### `certainaity-worker`
 
 ```dockerfile
 FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime
@@ -96,13 +96,13 @@ COPY src/ src/
 COPY weights/ weights/
 
 ENV CUDA_VISIBLE_DEVICES=0
-CMD ["celery", "-A", "forenscope.worker.app", "worker", \
+CMD ["celery", "-A", "certainaity.worker.app", "worker", \
      "--concurrency=1", "--loglevel=info", "-Q", "analysis"]
 ```
 
 `--concurrency=1` because GPU memory cannot be shared across concurrent model runs. Each worker processes one image at a time.
 
-### `forenscope-model-server` (v1.1, optional)
+### `certainaity-model-server` (v1.1, optional)
 
 Triton Inference Server with ONNX-exported models. Enables dynamic batching. Not required for v1.0.
 
@@ -119,7 +119,7 @@ services:
     image: nginx:1.25-alpine
     ports: ["443:443", "80:80"]
     volumes:
-      - ./nginx/forenscope.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/certainaity.conf:/etc/nginx/conf.d/default.conf:ro
       - ./certs:/etc/ssl/certs:ro
       - output:/srv/output:ro
     depends_on: [api]
@@ -180,13 +180,13 @@ secrets:
 ## nginx Configuration
 
 ```nginx
-# nginx/forenscope.conf
+# nginx/certainaity.conf
 server {
     listen 443 ssl http2;
-    server_name api.forenscope.io;
+    server_name api.certainaity.com;
 
-    ssl_certificate     /etc/ssl/certs/forenscope.crt;
-    ssl_certificate_key /etc/ssl/certs/forenscope.key;
+    ssl_certificate     /etc/ssl/certs/certainaity.crt;
+    ssl_certificate_key /etc/ssl/certs/certainaity.key;
     ssl_protocols       TLSv1.2 TLSv1.3;
     ssl_ciphers         HIGH:!aNULL:!MD5;
 
@@ -209,7 +209,7 @@ server {
 
 server {
     listen 80;
-    server_name api.forenscope.io;
+    server_name api.certainaity.com;
     return 301 https://$host$request_uri;
 }
 ```
@@ -236,8 +236,8 @@ The private key never enters the API or worker containers. It is held only on th
 
 ```bash
 # 1. Clone repo and configure
-git clone https://github.com/david-gary/forenscope.git
-cd forenscope
+git clone https://github.com/david-gary/certainaity.git
+cd certainaity
 cp .env.example .env    # edit: set REDIS_URL, OUTPUT_DIR, etc.
 
 # 2. Download model weights (requires credential)
@@ -303,13 +303,13 @@ The FastAPI app exposes `/metrics` (scrape target for Prometheus) via `prometheu
 
 | Metric | Description |
 |--------|-------------|
-| `forenscope_requests_total` | Counter by status code and org |
-| `forenscope_request_duration_seconds` | Histogram |
-| `forenscope_queue_depth` | Gauge (Celery queue length) |
-| `forenscope_gpu_memory_used_bytes` | Gauge (from nvidia-smi) |
-| `forenscope_manipulation_detected_total` | Counter |
+| `certainaity_requests_total` | Counter by status code and org |
+| `certainaity_request_duration_seconds` | Histogram |
+| `certainaity_queue_depth` | Gauge (Celery queue length) |
+| `certainaity_gpu_memory_used_bytes` | Gauge (from nvidia-smi) |
+| `certainaity_manipulation_detected_total` | Counter |
 
-A Grafana dashboard (`monitoring/grafana/forenscope.json`) visualizes these metrics with alerting rules for:
+A Grafana dashboard (`monitoring/grafana/certainaity.json`) visualizes these metrics with alerting rules for:
 - Queue depth > 20 for > 5 min → PagerDuty alert
 - GPU memory > 95% → warning
 - HTTP 5xx rate > 1% → PagerDuty alert
@@ -332,7 +332,7 @@ A Grafana dashboard (`monitoring/grafana/forenscope.json`) visualizes these metr
 When request volume exceeds what a single machine can handle, migrate to Kubernetes:
 
 1. Export model weights to ONNX; serve via Triton Inference Server.
-2. Deploy API pods (CPU-only, stateless) with HPA scaled on `forenscope_queue_depth`.
+2. Deploy API pods (CPU-only, stateless) with HPA scaled on `certainaity_queue_depth`.
 3. Deploy worker pods (GPU-enabled) with KEDA scaled on Redis queue length.
 4. Move output artifacts to S3 (or compatible: MinIO, GCS).
 5. Replace Docker secrets with Kubernetes Secrets or Vault Agent Injector.

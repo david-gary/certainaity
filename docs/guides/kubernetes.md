@@ -8,18 +8,18 @@ suitable for a self-hosted GPU cluster or a cloud provider with GPU node pools
 
 ```bash
 kubectl apply -f k8s/namespace.yaml
-kubectl config set-context --current --namespace=forenscope
+kubectl config set-context --current --namespace=certainaity
 ```
 
 ## Secrets
 
 ```bash
 # JWT public key
-kubectl create secret generic forenscope-jwt \
+kubectl create secret generic certainaity-jwt \
   --from-file=jwt_public.pem=secrets/jwt_public.pem
 
 # Redis password (if using authenticated Redis)
-kubectl create secret generic forenscope-redis \
+kubectl create secret generic certainaity-redis \
   --from-literal=password=<REDIS_PASSWORD>
 ```
 
@@ -33,13 +33,13 @@ This deploys:
 
 | Resource | Description |
 |----------|-------------|
-| `Deployment/forenscope-api` | 2 replicas, CPU, port 8000 |
-| `Deployment/forenscope-worker` | 1 replica, GPU (1× NVIDIA), Celery |
-| `Deployment/forenscope-frontend` | 2 replicas, nginx, port 80 |
-| `Service/forenscope-api` | ClusterIP :8000 |
-| `Service/forenscope-frontend` | ClusterIP :80 |
-| `HorizontalPodAutoscaler/forenscope-api` | Scale 2–10 on CPU > 70% |
-| `ConfigMap/forenscope-config` | Non-secret environment variables |
+| `Deployment/certainaity-api` | 2 replicas, CPU, port 8000 |
+| `Deployment/certainaity-worker` | 1 replica, GPU (1× NVIDIA), Celery |
+| `Deployment/certainaity-frontend` | 2 replicas, nginx, port 80 |
+| `Service/certainaity-api` | ClusterIP :8000 |
+| `Service/certainaity-frontend` | ClusterIP :80 |
+| `HorizontalPodAutoscaler/certainaity-api` | Scale 2–10 on CPU > 70% |
+| `ConfigMap/certainaity-config` | Non-secret environment variables |
 
 ## Ingress
 
@@ -49,25 +49,25 @@ Apply your ingress controller's ingress resource. Example (nginx-ingress):
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: forenscope
+  name: certainaity
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   tls:
-    - hosts: [forenscope.example.com]
-      secretName: forenscope-tls
+    - hosts: [certainaity.example.com]
+      secretName: certainaity-tls
   rules:
-    - host: forenscope.example.com
+    - host: certainaity.example.com
       http:
         paths:
           - path: /v1
             pathType: Prefix
             backend:
-              service: { name: forenscope-api, port: { number: 8000 } }
+              service: { name: certainaity-api, port: { number: 8000 } }
           - path: /
             pathType: Prefix
             backend:
-              service: { name: forenscope-frontend, port: { number: 80 } }
+              service: { name: certainaity-frontend, port: { number: 80 } }
 ```
 
 ## GPU node pool

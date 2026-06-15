@@ -7,7 +7,7 @@ from unittest.mock import patch
 import pytest
 from httpx import ASGITransport, AsyncClient
 
-from forenscope.api.main import app
+from certainaity.api.main import app
 
 
 @pytest.fixture()
@@ -27,17 +27,17 @@ class TestMetricsEndpoint:
         response = await client.get("/metrics")
         assert "text/plain" in response.headers["content-type"]
 
-    async def test_body_contains_forenscope_counter(self, client) -> None:
+    async def test_body_contains_certainaity_counter(self, client) -> None:
         response = await client.get("/metrics")
-        assert "forenscope_http_requests_total" in response.text
+        assert "certainaity_http_requests_total" in response.text
 
     async def test_body_contains_latency_histogram(self, client) -> None:
         response = await client.get("/metrics")
-        assert "forenscope_http_request_duration_seconds" in response.text
+        assert "certainaity_http_request_duration_seconds" in response.text
 
     async def test_body_contains_jobs_submitted_counter(self, client) -> None:
         response = await client.get("/metrics")
-        assert "forenscope_jobs_submitted_total" in response.text
+        assert "certainaity_jobs_submitted_total" in response.text
 
     async def test_endpoint_excluded_from_openapi_schema(self, client) -> None:
         schema_response = await client.get("/openapi.json")
@@ -57,4 +57,4 @@ class TestMetricsEndpoint:
     async def test_job_counter_label_present(self, client) -> None:
         response = await client.get("/metrics")
         # Jobs-rejected counter has a reason label — verify the label name is exported.
-        assert "forenscope_jobs_rejected_total" in response.text
+        assert "certainaity_jobs_rejected_total" in response.text

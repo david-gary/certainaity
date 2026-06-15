@@ -1,4 +1,4 @@
-# Forenscope Plan
+# Certainaity Plan
 
 ---
 
@@ -51,7 +51,7 @@ Each model outputs a manipulation probability map (0–1 per pixel or patch). Th
 
 ### 5. Post‑processing Resilience Test
 
-Because real evidence images may be re‑compressed, resized, or filtered, ForenScope includes an automated resilience test:
+Because real evidence images may be re‑compressed, resized, or filtered, Certainaity includes an automated resilience test:
 
 1. Take the input image.
 2. Re‑save it at JPEG quality levels **70, 85, 95**.

@@ -40,7 +40,7 @@ HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=15s \
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-CMD ["uvicorn", "forenscope.api.main:app", \
+CMD ["uvicorn", "certainaity.api.main:app", \
      "--host", "0.0.0.0", \
      "--port", "8000", \
      "--workers", "4", \

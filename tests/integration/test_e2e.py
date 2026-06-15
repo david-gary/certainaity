@@ -21,7 +21,7 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 from PIL import Image as PILImage
 
-from forenscope.api.main import app
+from certainaity.api.main import app
 
 
 # ---------------------------------------------------------------------------
@@ -50,7 +50,7 @@ def _mock_settings(tmp_path: Path) -> MagicMock:
 
 @pytest.fixture()
 def stub_jwt():
-    with patch("forenscope.api.auth.verify_jwt", return_value={"sub": "investigator-1"}):
+    with patch("certainaity.api.auth.verify_jwt", return_value={"sub": "investigator-1"}):
         yield
 
 
@@ -80,7 +80,7 @@ class TestChainOfCustody:
         def _record_async(args, task_id, **kwargs):
             captured_job_id.append(task_id)
 
-        with patch("forenscope.worker.tasks.analyze_image") as mock_task:
+        with patch("certainaity.worker.tasks.analyze_image") as mock_task:
             mock_task.apply_async.side_effect = _record_async
             response = await api_client.post(
                 "/v1/analyze",
@@ -91,12 +91,12 @@ class TestChainOfCustody:
         job_id = response.json()["job_id"]
         assert job_id == captured_job_id[0]
 
-        from forenscope.worker.tasks import analyze_image
+        from certainaity.worker.tasks import analyze_image
 
         mock_s = _mock_settings(tmp_path)
         with (
-            patch("forenscope.worker.tasks.get_settings", return_value=mock_s),
-            patch("forenscope.ingest.get_settings", return_value=mock_s),
+            patch("certainaity.worker.tasks.get_settings", return_value=mock_s),
+            patch("certainaity.ingest.get_settings", return_value=mock_s),
             patch.object(analyze_image, "update_state"),
         ):
             result = analyze_image.run(job_id, base64.b64encode(raw).decode(), "evidence.jpg")
@@ -112,12 +112,12 @@ class TestChainOfCustody:
         expected_sha256 = hashlib.sha256(raw).hexdigest()
         job_id = "e2e-coc-001"
 
-        from forenscope.worker.tasks import analyze_image
+        from certainaity.worker.tasks import analyze_image
 
         mock_s = _mock_settings(tmp_path)
         with (
-            patch("forenscope.worker.tasks.get_settings", return_value=mock_s),
-            patch("forenscope.ingest.get_settings", return_value=mock_s),
+            patch("certainaity.worker.tasks.get_settings", return_value=mock_s),
+            patch("certainaity.ingest.get_settings", return_value=mock_s),
             patch.object(analyze_image, "update_state"),
         ):
             result = analyze_image.run(job_id, base64.b64encode(raw).decode(), "photo.jpg")
@@ -134,7 +134,7 @@ class TestChainOfCustody:
         raw = _make_jpeg()
         captured: list[str] = []
 
-        with patch("forenscope.worker.tasks.analyze_image") as mock_task:
+        with patch("certainaity.worker.tasks.analyze_image") as mock_task:
             mock_task.apply_async.side_effect = lambda args, task_id, **kw: captured.append(task_id)
             response = await api_client.post(
                 "/v1/analyze",
@@ -143,12 +143,12 @@ class TestChainOfCustody:
 
         job_id = response.json()["job_id"]
 
-        from forenscope.worker.tasks import analyze_image
+        from certainaity.worker.tasks import analyze_image
 
         mock_s = _mock_settings(tmp_path)
         with (
-            patch("forenscope.worker.tasks.get_settings", return_value=mock_s),
-            patch("forenscope.ingest.get_settings", return_value=mock_s),
+            patch("certainaity.worker.tasks.get_settings", return_value=mock_s),
+            patch("certainaity.ingest.get_settings", return_value=mock_s),
             patch.object(analyze_image, "update_state"),
         ):
             analyze_image.run(job_id, base64.b64encode(raw).decode(), "img.jpg")
@@ -158,7 +158,7 @@ class TestChainOfCustody:
 
     async def test_poll_url_matches_job_id(self, api_client) -> None:
         raw = _make_jpeg()
-        with patch("forenscope.worker.tasks.analyze_image") as mock_task:
+        with patch("certainaity.worker.tasks.analyze_image") as mock_task:
             mock_task.apply_async.return_value = None
             response = await api_client.post(
                 "/v1/analyze",
@@ -170,15 +170,15 @@ class TestChainOfCustody:
     async def test_report_json_contains_all_custody_fields(self, tmp_path: Path) -> None:
         """All fields required by the chain-of-custody specification must be present."""
         pytest.importorskip("reportlab")
-        from forenscope.worker.tasks import analyze_image
+        from certainaity.worker.tasks import analyze_image
 
         raw = _make_jpeg()
         job_id = "e2e-coc-002"
 
         mock_s = _mock_settings(tmp_path)
         with (
-            patch("forenscope.worker.tasks.get_settings", return_value=mock_s),
-            patch("forenscope.ingest.get_settings", return_value=mock_s),
+            patch("certainaity.worker.tasks.get_settings", return_value=mock_s),
+            patch("certainaity.ingest.get_settings", return_value=mock_s),
             patch.object(analyze_image, "update_state"),
         ):
             analyze_image.run(job_id, base64.b64encode(raw).decode(), "exhibit.jpg")
@@ -201,15 +201,15 @@ class TestChainOfCustody:
 
     async def test_pdf_report_produced_alongside_json(self, tmp_path: Path) -> None:
         pytest.importorskip("reportlab")
-        from forenscope.worker.tasks import analyze_image
+        from certainaity.worker.tasks import analyze_image
 
         raw = _make_jpeg()
         job_id = "e2e-coc-003"
 
         mock_s = _mock_settings(tmp_path)
         with (
-            patch("forenscope.worker.tasks.get_settings", return_value=mock_s),
-            patch("forenscope.ingest.get_settings", return_value=mock_s),
+            patch("certainaity.worker.tasks.get_settings", return_value=mock_s),
+            patch("certainaity.ingest.get_settings", return_value=mock_s),
             patch.object(analyze_image, "update_state"),
         ):
             analyze_image.run(job_id, base64.b64encode(raw).decode(), "scan.jpg")

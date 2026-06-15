@@ -1,11 +1,11 @@
 # CLI Reference
 
-## `forenscope analyze`
+## `certainaity analyze`
 
 Run a full forensic analysis on a local image file.
 
 ```
-forenscope analyze <image> [options]
+certainaity analyze <image> [options]
 ```
 
 ### Arguments
@@ -33,16 +33,16 @@ forenscope analyze <image> [options]
 
 ```bash
 # Print JSON to stdout
-forenscope analyze photo.jpg
+certainaity analyze photo.jpg
 
 # Write both report formats
-forenscope analyze photo.jpg \
+certainaity analyze photo.jpg \
   --job-id case-2026-001 \
   --output-json reports/case-2026-001.json \
   --output-pdf  reports/case-2026-001.pdf
 
 # Use in a shell pipeline
-forenscope analyze photo.jpg | jq '.manipulation_detected'
+certainaity analyze photo.jpg | jq '.manipulation_detected'
 ```
 
 ### Output schema

@@ -1,4 +1,4 @@
-# ForenScope — Data Pipeline
+# Certainaity — Data Pipeline
 
 ## Overview
 
@@ -7,7 +7,7 @@ The data pipeline covers everything from raw dataset acquisition to the tensors 
 The pipeline is implemented in `src/data/` and is runnable as a standalone script:
 
 ```bash
-python -m forenscope.data.build_dataset \
+python -m certainaity.data.build_dataset \
     --datasets casia_v2 defacto nist16 div2k_inpainted \
     --output_dir data/processed/ \
     --split 0.80/0.10/0.10
@@ -179,7 +179,7 @@ class ForensicDataset(Dataset):
 ## Inpainting Set Generation Pipeline
 
 ```bash
-python -m forenscope.data.generate_inpainting \
+python -m certainaity.data.generate_inpainting \
     --source_dir data/raw/div2k/HR data/raw/coco_sample \
     --output_dir data/inpainting_synthetic/ \
     --n_images 22000 \

@@ -8,8 +8,8 @@ on:
 env:
   REGISTRY: ghcr.io
   OWNER: david-gary
-  IMAGE_API: ghcr.io/david-gary/forenscope-api
-  IMAGE_WORKER: ghcr.io/david-gary/forenscope-worker
+  IMAGE_API: ghcr.io/david-gary/certainaity-api
+  IMAGE_WORKER: ghcr.io/david-gary/certainaity-worker
 
 jobs:
   build-and-push:
@@ -148,7 +148,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: ForenScope v${{ steps.version.outputs.VERSION }}
+          name: Certainaity v${{ steps.version.outputs.VERSION }}
           body_path: release_notes.md
           draft: false
           prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-alpha') || contains(github.ref_name, '-beta') }}

@@ -2,7 +2,7 @@
 
 ## Production stack
 
-ForenScope uses Docker Compose with five services: `nginx`, `api`, `worker`, `redis`, and `frontend`.
+Certainaity uses Docker Compose with five services: `nginx`, `api`, `worker`, `redis`, and `frontend`.
 
 ```
 ┌──────────────┐    ┌──────────────┐    ┌──────────────────────┐
@@ -32,17 +32,17 @@ ForenScope uses Docker Compose with five services: `nginx`, `api`, `worker`, `re
 ### 1. Clone and configure
 
 ```bash
-git clone https://github.com/david-gary/forenscope.git
-cd forenscope
+git clone https://github.com/david-gary/certainaity.git
+cd certainaity
 cp .env.example .env
 ```
 
 Edit `.env` — the required fields are:
 
 ```bash
-FORENSCOPE_REDIS_URL=redis://redis:6379/0
-FORENSCOPE_JWT_PUBLIC_KEY_PATH=secrets/jwt_public.pem
-FORENSCOPE_OUTPUT_DIR=/output
+CERTAINAITY_REDIS_URL=redis://redis:6379/0
+CERTAINAITY_JWT_PUBLIC_KEY_PATH=secrets/jwt_public.pem
+CERTAINAITY_OUTPUT_DIR=/output
 ```
 
 ### 2. Generate TLS certificates
@@ -95,7 +95,7 @@ docker compose up -d   # auto-merges docker-compose.override.yml
 
 The override:
 - Replaces the NVIDIA runtime with `runc`
-- Sets `FORENSCOPE_USE_CPU=true`
+- Sets `CERTAINAITY_USE_CPU=true`
 - Exposes ports 8000 (API) and 6379 (Redis) directly
 - Skips nginx (talk to the API directly on port 8000)
 
@@ -109,8 +109,8 @@ docker compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
 
 Then open Grafana at `http://localhost:3001` (default user: `admin` / `admin`).
 
-The ForenScope dashboard is auto-provisioned from
-`monitoring/grafana/dashboards/forenscope.json`.
+The Certainaity dashboard is auto-provisioned from
+`monitoring/grafana/dashboards/certainaity.json`.
 
 ## Upgrading
 
@@ -125,7 +125,7 @@ docker compose up -d --remove-orphans
 Images are tagged by version on GHCR. To roll back to v1.0.0:
 
 ```bash
-FORENSCOPE_VERSION=1.0.0 docker compose up -d
+CERTAINAITY_VERSION=1.0.0 docker compose up -d
 ```
 
 (Requires `image:` overrides or environment variable expansion in your compose file.)

@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from forenscope.report import (
+from certainaity.report import (
     AnalysisReport,
     ReportRegion,
     generate_report,

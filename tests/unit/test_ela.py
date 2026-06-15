@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from forenscope.features.ela import compute_ela, ela_summary
+from certainaity.features.ela import compute_ela, ela_summary
 
 
 class TestComputeEla:

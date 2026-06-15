@@ -1,10 +1,10 @@
 # Forensic Pipeline
 
-Every image submitted to ForenScope passes through five stages executed by the Celery worker.
+Every image submitted to Certainaity passes through five stages executed by the Celery worker.
 
 ## Stage 1 — Ingest & validate
 
-`forenscope.ingest.ingest_image()`
+`certainaity.ingest.ingest_image()`
 
 - SHA-256 is computed from the raw byte stream **before** any decoding, preserving chain-of-custody integrity.
 - Format, size, and dimension constraints are enforced (see [Configuration](../reference/configuration.md)).
@@ -14,7 +14,7 @@ Every image submitted to ForenScope passes through five stages executed by the C
 
 ## Stage 2 — Feature extraction
 
-`forenscope.worker.tasks._extract_features()`
+`certainaity.worker.tasks._extract_features()`
 
 Four handcrafted forensic feature extractors run in parallel via `ThreadPoolExecutor`:
 
@@ -29,7 +29,7 @@ Each extractor returns a `(H, W) float32` map in `[0, 1]`. Higher values indicat
 
 ## Stage 3 — Ensemble inference
 
-`forenscope.models.Ensemble.localize()`
+`certainaity.models.Ensemble.localize()`
 
 Four deep learning models produce pixel-level manipulation probability maps:
 
@@ -42,7 +42,7 @@ Four deep learning models produce pixel-level manipulation probability maps:
 
 Fusion: `heatmap = Σ (wᵢ / Σwⱼ) × mapᵢ` with default weights `[0.35, 0.30, 0.20, 0.15]`.
 
-Connected components smaller than `FORENSCOPE_MIN_REGION_PX` are discarded as noise.
+Connected components smaller than `CERTAINAITY_MIN_REGION_PX` are discarded as noise.
 
 ### WeightsNotFoundError fallback
 
@@ -50,19 +50,19 @@ If model weight files are absent, `WeightsNotFoundError` is caught and the pipel
 
 ## Stage 4 — Resilience test
 
-`forenscope.resilience.run_resilience_test()`
+`certainaity.resilience.run_resilience_test()`
 
 Only runs when Stage 3 produced a heatmap **and** `overall_confidence > ensemble_threshold`.
 
-The image is re-compressed at each quality in `FORENSCOPE_RESILIENCE_QUALITIES` (default `[70, 85, 95]`). The ensemble runs on each recompressed version. If confidence drops by more than `FORENSCOPE_RESILIENCE_DROP_THRESHOLD` (default `0.25`) at any quality, `anti_forensic_warning = True` is set in the report.
+The image is re-compressed at each quality in `CERTAINAITY_RESILIENCE_QUALITIES` (default `[70, 85, 95]`). The ensemble runs on each recompressed version. If confidence drops by more than `CERTAINAITY_RESILIENCE_DROP_THRESHOLD` (default `0.25`) at any quality, `anti_forensic_warning = True` is set in the report.
 
 This detects post-processing designed to make forensic signals appear only at specific compression settings — a known anti-forensic evasion technique.
 
 ## Stage 5 — Report generation
 
-`forenscope.report.generate_report()`, `save_json_report()`, `save_pdf_report()`
+`certainaity.report.generate_report()`, `save_json_report()`, `save_pdf_report()`
 
-Outputs are written to `FORENSCOPE_OUTPUT_DIR/{job_id}/`:
+Outputs are written to `CERTAINAITY_OUTPUT_DIR/{job_id}/`:
 
 | File | Contents |
 |------|----------|

@@ -1,8 +1,8 @@
-site_name: ForenScope
+site_name: Certainaity
 site_description: Forensic image manipulation detection — documentation
-site_url: https://david-gary.github.io/forenscope
-repo_url: https://github.com/david-gary/forenscope
-repo_name: david-gary/forenscope
+site_url: https://docs.certainaity.com
+repo_url: https://github.com/david-gary/certainaity
+repo_name: david-gary/certainaity
 edit_uri: edit/main/docs/
 
 theme:

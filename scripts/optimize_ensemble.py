@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Optimise ForenScope ensemble weights")
+    parser = argparse.ArgumentParser(description="Optimise Certainaity ensemble weights")
     parser.add_argument(
         "--val-dir", type=Path, required=True,
         help="Root of processed dataset — val.jsonl must be present",
@@ -56,13 +56,13 @@ def main() -> None:
 
     from torch.utils.data import DataLoader
 
-    from forenscope.data.dataset import ForensicDataset
-    from forenscope.models.base import ModelName
-    from forenscope.models.ensemble import Ensemble
-    from forenscope.models.inpainting import InpaintingDetector
-    from forenscope.models.mantranet import MantraNet
-    from forenscope.models.patchforensic import PatchForensic
-    from forenscope.models.spsl import SPSL
+    from certainaity.data.dataset import ForensicDataset
+    from certainaity.models.base import ModelName
+    from certainaity.models.ensemble import Ensemble
+    from certainaity.models.inpainting import InpaintingDetector
+    from certainaity.models.mantranet import MantraNet
+    from certainaity.models.patchforensic import PatchForensic
+    from certainaity.models.spsl import SPSL
 
     val_manifest = args.val_dir / "val.jsonl"
     if not val_manifest.exists():

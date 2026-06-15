@@ -29,7 +29,7 @@ RUN groupadd --gid 10001 appgroup \
 
 WORKDIR /app
 
-# Install the forenscope wheel with worker extras on top of the base image's torch.
+# Install the certainaity wheel with worker extras on top of the base image's torch.
 COPY --from=builder /dist/*.whl /tmp/
 RUN pip install --no-cache-dir /tmp/*.whl"[worker]" \
     && rm -f /tmp/*.whl
@@ -45,10 +45,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     CUDA_VISIBLE_DEVICES=0
 
 HEALTHCHECK --interval=60s --timeout=10s --retries=3 --start-period=30s \
-    CMD celery -A forenscope.worker.app inspect ping -d celery@$$HOSTNAME || exit 1
+    CMD celery -A certainaity.worker.app inspect ping -d celery@$$HOSTNAME || exit 1
 
 # One worker per GPU keeps GPU memory usage bounded.
-CMD ["celery", "-A", "forenscope.worker.app", "worker", \
+CMD ["celery", "-A", "certainaity.worker.app", "worker", \
      "--concurrency=1", \
      "--loglevel=info", \
      "-Q", "analysis"]

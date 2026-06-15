@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from forenscope.features.dct import (
+from certainaity.features.dct import (
     compute_dct_similarity,
     dct_summary,
     _dct_features,

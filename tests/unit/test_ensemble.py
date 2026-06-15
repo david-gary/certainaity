@@ -8,8 +8,8 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
-from forenscope.models.base import ModelName
-from forenscope.models.ensemble import Ensemble, LocalizationResult, _DEFAULT_WEIGHTS
+from certainaity.models.base import ModelName
+from certainaity.models.ensemble import Ensemble, LocalizationResult, _DEFAULT_WEIGHTS
 
 
 # ---------------------------------------------------------------------------

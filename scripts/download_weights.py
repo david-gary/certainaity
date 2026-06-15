@@ -1,4 +1,4 @@
-"""Download ForenScope model weights from the versioned S3 bucket.
+"""Download Certainaity model weights from the versioned S3 bucket.
 
 Usage
 -----
@@ -24,19 +24,19 @@ log = logging.getLogger(__name__)
 # URL template has {token} substituted at runtime.
 WEIGHTS_REGISTRY: dict[str, tuple[str, str]] = {
     "patchforensic_v2.pth": (
-        "https://weights.forenscope.io/v1/patchforensic_v2.pth?token={token}",
+        "https://weights.certainaity.com/v1/patchforensic_v2.pth?token={token}",
         "PLACEHOLDER_SHA256_PATCHFORENSIC",
     ),
     "mantranet_finetuned.pth": (
-        "https://weights.forenscope.io/v1/mantranet_finetuned.pth?token={token}",
+        "https://weights.certainaity.com/v1/mantranet_finetuned.pth?token={token}",
         "PLACEHOLDER_SHA256_MANTRANET",
     ),
     "spsl_siamese.pth": (
-        "https://weights.forenscope.io/v1/spsl_siamese.pth?token={token}",
+        "https://weights.certainaity.com/v1/spsl_siamese.pth?token={token}",
         "PLACEHOLDER_SHA256_SPSL",
     ),
     "inpainting_detector_clip.pth": (
-        "https://weights.forenscope.io/v1/inpainting_detector_clip.pth?token={token}",
+        "https://weights.certainaity.com/v1/inpainting_detector_clip.pth?token={token}",
         "PLACEHOLDER_SHA256_INPAINTING",
     ),
 }
@@ -106,7 +106,7 @@ def _verify_checksum(path: Path, expected: str) -> bool:
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
-    parser = argparse.ArgumentParser(description="Download ForenScope model weights")
+    parser = argparse.ArgumentParser(description="Download Certainaity model weights")
     parser.add_argument("--token", required=True, help="Download authorization token")
     parser.add_argument(
         "--weights-dir", type=Path, default=Path("weights"),

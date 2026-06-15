@@ -43,18 +43,18 @@ def _make_mock_settings(tmp_path: Path) -> MagicMock:
 
 class TestTaskRegistration:
     def test_task_is_in_registry(self) -> None:
-        from forenscope.worker import tasks  # noqa: F401 — ensures task registers
-        from forenscope.worker.app import celery_app
+        from certainaity.worker import tasks  # noqa: F401 — ensures task registers
+        from certainaity.worker.app import celery_app
 
-        assert "forenscope.analyze_image" in celery_app.tasks
+        assert "certainaity.analyze_image" in celery_app.tasks
 
     def test_task_has_correct_name(self) -> None:
-        from forenscope.worker.tasks import analyze_image
+        from certainaity.worker.tasks import analyze_image
 
-        assert analyze_image.name == "forenscope.analyze_image"
+        assert analyze_image.name == "certainaity.analyze_image"
 
     def test_task_max_retries(self) -> None:
-        from forenscope.worker.tasks import analyze_image
+        from certainaity.worker.tasks import analyze_image
 
         assert analyze_image.max_retries == 2
 
@@ -65,12 +65,12 @@ class TestTaskRegistration:
 
 class TestAnalyzeImageTask:
     def _run_task(self, job_id: str, image_b64: str, tmp_path: Path) -> dict:
-        from forenscope.worker.tasks import analyze_image
+        from certainaity.worker.tasks import analyze_image
 
         mock_settings = _make_mock_settings(tmp_path)
         with (
-            patch("forenscope.worker.tasks.get_settings", return_value=mock_settings),
-            patch("forenscope.ingest.get_settings", return_value=mock_settings),
+            patch("certainaity.worker.tasks.get_settings", return_value=mock_settings),
+            patch("certainaity.ingest.get_settings", return_value=mock_settings),
             patch.object(analyze_image, "update_state"),
         ):
             return analyze_image.run(job_id, image_b64, "test.jpg")

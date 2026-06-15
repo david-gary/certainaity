@@ -19,7 +19,7 @@ Then reference it in docker-compose.yml:
         external: true
 
 The API service reads the public key path from
-``FORENSCOPE_JWT_PUBLIC_KEY_PATH`` (default: ``secrets/jwt_public.pem``).
+``CERTAINAITY_JWT_PUBLIC_KEY_PATH`` (default: ``secrets/jwt_public.pem``).
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ def main() -> None:
         sys.exit(1)
 
     parser = argparse.ArgumentParser(
-        description="Generate an RS256 JWT key pair for ForenScope",
+        description="Generate an RS256 JWT key pair for Certainaity",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
@@ -92,7 +92,7 @@ def main() -> None:
     print()
     print("Next steps:")
     print("  1. Add secrets/ to .gitignore (already done — *.pem is ignored).")
-    print("  2. Set FORENSCOPE_JWT_PUBLIC_KEY_PATH=secrets/jwt_public.pem in .env")
+    print("  2. Set CERTAINAITY_JWT_PUBLIC_KEY_PATH=secrets/jwt_public.pem in .env")
     print("  3. Use the private key to sign tokens in your auth server.")
 
 

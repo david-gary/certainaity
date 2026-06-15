@@ -72,8 +72,8 @@ def main() -> None:
     import mlflow
     from torch.utils.data import DataLoader, Subset
 
-    from forenscope.data.dataset import ForensicDataset
-    from forenscope.models.patchforensic import _PatchForensicNet
+    from certainaity.data.dataset import ForensicDataset
+    from certainaity.models.patchforensic import _PatchForensicNet
 
     torch.manual_seed(args.seed)
 

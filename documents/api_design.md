@@ -1,11 +1,11 @@
-# ForenScope — API Design
+# Certainaity — API Design
 
 ## Overview
 
-ForenScope exposes a REST API built with FastAPI (Python 3.11). The API is versioned under `/v1/`. Authentication uses JWT bearer tokens issued per organization. All endpoints return JSON; image upload uses `multipart/form-data`.
+Certainaity exposes a REST API built with FastAPI (Python 3.11). The API is versioned under `/v1/`. Authentication uses JWT bearer tokens issued per organization. All endpoints return JSON; image upload uses `multipart/form-data`.
 
 **Base URL (local dev)**: `http://localhost:8000`  
-**Base URL (production)**: `https://api.forenscope.io` (TBD)
+**Base URL (production)**: `https://api.certainaity.com` (TBD)
 
 ---
 
@@ -237,7 +237,7 @@ X-RateLimit-Reset: 1706000414
 
 ## Webhook Delivery
 
-If `webhook_url` is specified in the analysis options, the server POSTs the same JSON body as the synchronous 200 response to that URL when analysis is complete. Webhook delivery is retried up to 5 times with exponential backoff (1 s, 2 s, 4 s, 8 s, 16 s). A shared secret (set in the org dashboard) is sent as the `X-Forenscope-Signature: sha256=<hmac>` header so the receiver can verify authenticity.
+If `webhook_url` is specified in the analysis options, the server POSTs the same JSON body as the synchronous 200 response to that URL when analysis is complete. Webhook delivery is retried up to 5 times with exponential backoff (1 s, 2 s, 4 s, 8 s, 16 s). A shared secret (set in the org dashboard) is sent as the `X-Certainaity-Signature: sha256=<hmac>` header so the receiver can verify authenticity.
 
 ---
 
@@ -245,8 +245,8 @@ If `webhook_url` is specified in the analysis options, the server POSTs the same
 
 ```python
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
-from forenscope.auth import require_scope
-from forenscope.schemas import AnalyzeOptions, AnalyzeResponse
+from certainaity.auth import require_scope
+from certainaity.schemas import AnalyzeOptions, AnalyzeResponse
 
 router = APIRouter(prefix="/v1")
 

@@ -74,8 +74,8 @@ def main() -> None:
     import mlflow
     from torch.utils.data import DataLoader
 
-    from forenscope.data.dataset import ForensicDataset
-    from forenscope.models.mantranet import _MantraNetModel
+    from certainaity.data.dataset import ForensicDataset
+    from certainaity.models.mantranet import _MantraNetModel
 
     torch.manual_seed(args.seed)
 

@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: forenscope-frontend
-  namespace: forenscope
+  name: certainaity-frontend
+  namespace: certainaity
   labels:
-    app: forenscope-frontend
+    app: certainaity-frontend
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: forenscope-frontend
+      app: certainaity-frontend
   template:
     metadata:
       labels:
-        app: forenscope-frontend
+        app: certainaity-frontend
     spec:
       containers:
         - name: frontend
-          image: ghcr.io/david-gary/forenscope-frontend:latest
+          image: ghcr.io/david-gary/certainaity-frontend:latest
           ports:
             - containerPort: 80
               name: http
@@ -38,11 +38,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: forenscope-frontend
-  namespace: forenscope
+  name: certainaity-frontend
+  namespace: certainaity
 spec:
   selector:
-    app: forenscope-frontend
+    app: certainaity-frontend
   ports:
     - port: 80
       targetPort: 80

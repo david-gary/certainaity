@@ -3,8 +3,8 @@
 ## Development setup
 
 ```bash
-git clone https://github.com/david-gary/forenscope.git
-cd forenscope
+git clone https://github.com/david-gary/certainaity.git
+cd certainaity
 pip install -e ".[dev,api]"
 ```
 
@@ -12,12 +12,12 @@ pip install -e ".[dev,api]"
 
 ```bash
 # Unit tests with coverage
-pytest tests/unit/ -v --cov=forenscope --cov-fail-under=85
+pytest tests/unit/ -v --cov=certainaity --cov-fail-under=85
 
 # Integration tests (no GPU required)
-FORENSCOPE_USE_CPU=true \
-FORENSCOPE_OUTPUT_DIR=/tmp/forenscope_test \
-FORENSCOPE_JWT_PUBLIC_KEY_PATH=/tmp/nonexistent.pem \
+CERTAINAITY_USE_CPU=true \
+CERTAINAITY_OUTPUT_DIR=/tmp/certainaity_test \
+CERTAINAITY_JWT_PUBLIC_KEY_PATH=/tmp/nonexistent.pem \
 pytest tests/integration/ -v
 
 # Full CI equivalent
@@ -57,7 +57,7 @@ No `Co-Authored-By` trailers.
 
 ## Adding a model
 
-1. Create `src/forenscope/models/yourmodel.py` extending `ForensicModel`.
+1. Create `src/certainaity/models/yourmodel.py` extending `ForensicModel`.
 2. Implement `_load_weights()` and `_forward()`.
 3. Add a `ModelName` enum variant in `base.py`.
 4. Register the model in `Ensemble.__init__()` with a default weight.
@@ -66,7 +66,7 @@ No `Co-Authored-By` trailers.
 
 ## Adding a feature extractor
 
-1. Create `src/forenscope/features/yourfeature.py`.
+1. Create `src/certainaity/features/yourfeature.py`.
 2. Implement a `compute_*` function returning `(H, W) float32 ndarray in [0, 1]`.
 3. Register it in `_extract_features()` in `tasks.py`.
 4. Add unit tests in `tests/unit/`.

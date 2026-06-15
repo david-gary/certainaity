@@ -17,12 +17,12 @@ from httpx import ASGITransport, AsyncClient
 from PIL import Image as PILImage
 from slowapi.errors import RateLimitExceeded
 
-from forenscope.api.main import app
+from certainaity.api.main import app
 
 
 @pytest.fixture()
 def stub_jwt():
-    with patch("forenscope.api.auth.verify_jwt", return_value={"sub": "test-user"}):
+    with patch("certainaity.api.auth.verify_jwt", return_value={"sub": "test-user"}):
         yield
 
 
@@ -42,7 +42,7 @@ def _jpeg() -> bytes:
 
 class TestRateLimitIntegration:
     def test_limiter_registered_on_app_state(self) -> None:
-        from forenscope.api.limiter import limiter
+        from certainaity.api.limiter import limiter
 
         assert app.state.limiter is limiter
 
@@ -50,7 +50,7 @@ class TestRateLimitIntegration:
         assert RateLimitExceeded in app.exception_handlers
 
     async def test_single_request_is_not_rate_limited(self, client) -> None:
-        with patch("forenscope.worker.tasks.analyze_image") as mock_task:
+        with patch("certainaity.worker.tasks.analyze_image") as mock_task:
             mock_task.apply_async.return_value = None
             response = await client.post(
                 "/v1/analyze",
@@ -60,14 +60,14 @@ class TestRateLimitIntegration:
 
     async def test_rate_limited_response_is_429(self, client) -> None:
         """Override the limiter to 1/minute so the second request hits the wall."""
-        from forenscope.api import routes as routes_mod
+        from certainaity.api import routes as routes_mod
 
         original = routes_mod._ANALYZE_RATE
         routes_mod._ANALYZE_RATE = "1/minute"
 
         with (
-            patch("forenscope.api.limiter.limiter._storage") as _mock_storage,
-            patch("forenscope.worker.tasks.analyze_image") as mock_task,
+            patch("certainaity.api.limiter.limiter._storage") as _mock_storage,
+            patch("certainaity.worker.tasks.analyze_image") as mock_task,
         ):
             mock_task.apply_async.return_value = None
 
@@ -79,7 +79,7 @@ class TestRateLimitIntegration:
             # Second request with the same IP in the same window should be rejected.
             # Patch the limiter to raise RateLimitExceeded to simulate exhaustion.
             with patch(
-                "forenscope.api.limiter.limiter.hit",
+                "certainaity.api.limiter.limiter.hit",
                 side_effect=RateLimitExceeded("1 per 1 minute"),
             ):
                 r2 = await client.post(
@@ -94,7 +94,7 @@ class TestRateLimitIntegration:
 
     async def test_rate_limit_rejected_response_has_retry_after(self, client) -> None:
         with patch(
-            "forenscope.api.limiter.limiter.hit",
+            "certainaity.api.limiter.limiter.hit",
             side_effect=RateLimitExceeded("60 per 1 minute"),
         ):
             response = await client.post(

@@ -1,8 +1,8 @@
-# ForenScope
+# Certainaity
 
 **Forensic image manipulation detection for legal and investigative contexts.**
 
-ForenScope detects four classes of digital image manipulation:
+Certainaity detects four classes of digital image manipulation:
 
 | Type | Description |
 |------|-------------|
@@ -13,7 +13,7 @@ ForenScope detects four classes of digital image manipulation:
 
 ## How it works
 
-ForenScope combines four handcrafted forensic feature extractors with an ensemble of four deep learning models:
+Certainaity combines four handcrafted forensic feature extractors with an ensemble of four deep learning models:
 
 ```
 Image → Ingest (SHA-256 + validation)
@@ -28,8 +28,8 @@ Image → Ingest (SHA-256 + validation)
 === "CLI"
 
     ```bash
-    pip install forenscope
-    forenscope analyze photo.jpg
+    pip install certainaity
+    certainaity analyze photo.jpg
     ```
 
 === "Docker Compose"
@@ -49,9 +49,9 @@ Image → Ingest (SHA-256 + validation)
 ## Key properties
 
 - **Chain-of-custody**: SHA-256 computed from raw bytes before any decoding; preserved through the entire pipeline into every report.
-- **Graceful degradation**: If model weights are not yet deployed, ForenScope falls back to handcrafted feature signals and clearly labels which models were used in the report.
+- **Graceful degradation**: If model weights are not yet deployed, Certainaity falls back to handcrafted feature signals and clearly labels which models were used in the report.
 - **Anti-forensic detection**: The resilience test re-compresses images at multiple JPEG qualities. A large confidence drop flags images that were post-processed to evade forensic analysis.
 
-## What ForenScope is not
+## What Certainaity is not
 
-ForenScope is a forensic *support* tool. Its reports must be reviewed by a qualified digital forensics examiner before use in legal proceedings.
+Certainaity is a forensic *support* tool. Its reports must be reviewed by a qualified digital forensics examiner before use in legal proceedings.

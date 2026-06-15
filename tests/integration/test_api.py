@@ -1,4 +1,4 @@
-"""Integration tests for the ForenScope FastAPI application.
+"""Integration tests for the Certainaity FastAPI application.
 
 All external I/O (Redis, Celery broker, JWT key file) is mocked so the
 tests run in CI without a running Redis instance.
@@ -35,14 +35,14 @@ def _make_png(size: tuple[int, int] = (128, 128)) -> bytes:
 
 @pytest.fixture()
 def app():
-    from forenscope.api.main import create_app
+    from certainaity.api.main import create_app
     return create_app()
 
 
 @pytest.fixture()
 def _stub_jwt():
     """Patch verify_jwt to always succeed without a real key file."""
-    with patch("forenscope.api.auth.verify_jwt", return_value={"sub": "test-user"}):
+    with patch("certainaity.api.auth.verify_jwt", return_value={"sub": "test-user"}):
         yield
 
 
@@ -101,7 +101,7 @@ class TestSubmitImage:
 
     @pytest.mark.asyncio
     async def test_valid_jpeg_returns_202(self, app, _stub_jwt) -> None:
-        with patch("forenscope.worker.tasks.analyze_image.apply_async"):
+        with patch("certainaity.worker.tasks.analyze_image.apply_async"):
             async with AsyncClient(
                 transport=ASGITransport(app=app), base_url="http://test"
             ) as client:
@@ -114,7 +114,7 @@ class TestSubmitImage:
 
     @pytest.mark.asyncio
     async def test_response_has_job_id(self, app, _stub_jwt) -> None:
-        with patch("forenscope.worker.tasks.analyze_image.apply_async"):
+        with patch("certainaity.worker.tasks.analyze_image.apply_async"):
             async with AsyncClient(
                 transport=ASGITransport(app=app), base_url="http://test"
             ) as client:
@@ -129,7 +129,7 @@ class TestSubmitImage:
 
     @pytest.mark.asyncio
     async def test_poll_url_contains_job_id(self, app, _stub_jwt) -> None:
-        with patch("forenscope.worker.tasks.analyze_image.apply_async"):
+        with patch("certainaity.worker.tasks.analyze_image.apply_async"):
             async with AsyncClient(
                 transport=ASGITransport(app=app), base_url="http://test"
             ) as client:
@@ -155,7 +155,7 @@ class TestSubmitImage:
 
     @pytest.mark.asyncio
     async def test_valid_png_returns_202(self, app, _stub_jwt) -> None:
-        with patch("forenscope.worker.tasks.analyze_image.apply_async"):
+        with patch("certainaity.worker.tasks.analyze_image.apply_async"):
             async with AsyncClient(
                 transport=ASGITransport(app=app), base_url="http://test"
             ) as client:
@@ -175,7 +175,7 @@ class TestJobStatus:
     @pytest.mark.asyncio
     async def test_pending_job(self, app, _stub_jwt) -> None:
         job_id = str(uuid.uuid4())
-        with patch("forenscope.api.routes.AsyncResult") as mock_result:
+        with patch("certainaity.api.routes.AsyncResult") as mock_result:
             mock_result.return_value.state = "PENDING"
             mock_result.return_value.info = None
             async with AsyncClient(
@@ -191,7 +191,7 @@ class TestJobStatus:
     @pytest.mark.asyncio
     async def test_started_job_has_stage(self, app, _stub_jwt) -> None:
         job_id = str(uuid.uuid4())
-        with patch("forenscope.api.routes.AsyncResult") as mock_result:
+        with patch("certainaity.api.routes.AsyncResult") as mock_result:
             mock_result.return_value.state = "STARTED"
             mock_result.return_value.info = {"stage": "inference"}
             async with AsyncClient(
@@ -208,7 +208,7 @@ class TestJobStatus:
     @pytest.mark.asyncio
     async def test_successful_job(self, app, _stub_jwt) -> None:
         job_id = str(uuid.uuid4())
-        with patch("forenscope.api.routes.AsyncResult") as mock_result:
+        with patch("certainaity.api.routes.AsyncResult") as mock_result:
             mock_result.return_value.state = "SUCCESS"
             mock_result.return_value.info = {"job_id": job_id, "overall_confidence": 0.9}
             async with AsyncClient(
@@ -266,7 +266,7 @@ class TestReportEndpoints:
         (report_dir / "report.json").write_text(
             json.dumps({"job_id": job_id, "overall_confidence": 0.85})
         )
-        with patch("forenscope.api.routes.get_settings") as mock_cfg:
+        with patch("certainaity.api.routes.get_settings") as mock_cfg:
             s = MagicMock()
             s.output_dir = tmp_path
             mock_cfg.return_value = s

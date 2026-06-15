@@ -8,8 +8,8 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
-from forenscope.exceptions import WeightsNotFoundError
-from forenscope.models.base import ModelName
+from certainaity.exceptions import WeightsNotFoundError
+from certainaity.models.base import ModelName
 
 
 # ---------------------------------------------------------------------------
@@ -37,34 +37,34 @@ def dummy_rgb() -> np.ndarray:
 
 class TestPatchForensic:
     def test_weight_file_constant(self) -> None:
-        from forenscope.models.patchforensic import PatchForensic
+        from certainaity.models.patchforensic import PatchForensic
         assert PatchForensic.WEIGHT_FILE == "patchforensic_v2.pth"
 
     def test_model_name_constant(self) -> None:
-        from forenscope.models.patchforensic import PatchForensic
+        from certainaity.models.patchforensic import PatchForensic
         assert PatchForensic.MODEL_NAME == ModelName.PATCH_FORENSIC
 
     def test_instantiates_without_weights(self, weights_dir: Path) -> None:
-        from forenscope.models.patchforensic import PatchForensic
+        from certainaity.models.patchforensic import PatchForensic
         model = PatchForensic(weights_dir)
         assert model is not None
 
     def test_raises_weights_not_found_on_predict(
         self, weights_dir: Path, dummy_rgb: np.ndarray
     ) -> None:
-        from forenscope.models.patchforensic import PatchForensic
+        from certainaity.models.patchforensic import PatchForensic
         model = PatchForensic(weights_dir)
         with pytest.raises(WeightsNotFoundError):
             model.predict(dummy_rgb)
 
     def test_weight_path_property(self, weights_dir: Path) -> None:
-        from forenscope.models.patchforensic import PatchForensic
+        from certainaity.models.patchforensic import PatchForensic
         model = PatchForensic(weights_dir)
         assert model.weight_path == weights_dir / "patchforensic_v2.pth"
 
     def test_architecture_layer_names(self) -> None:
         pytest.importorskip("torch")
-        from forenscope.models.patchforensic import _PatchForensicNet
+        from certainaity.models.patchforensic import _PatchForensicNet
         net = _PatchForensicNet()
         assert hasattr(net, "enc1")
         assert hasattr(net, "enc2")
@@ -75,7 +75,7 @@ class TestPatchForensic:
 
     def test_forward_output_shape(self) -> None:
         torch = pytest.importorskip("torch")
-        from forenscope.models.patchforensic import _PatchForensicNet
+        from certainaity.models.patchforensic import _PatchForensicNet
         net = _PatchForensicNet()
         x = torch.zeros(1, 3, 64, 64)
         with torch.no_grad():
@@ -84,7 +84,7 @@ class TestPatchForensic:
 
     def test_forward_output_in_range(self) -> None:
         torch = pytest.importorskip("torch")
-        from forenscope.models.patchforensic import _PatchForensicNet
+        from certainaity.models.patchforensic import _PatchForensicNet
         rng = np.random.default_rng(1)
         net = _PatchForensicNet()
         x = torch.from_numpy(rng.random((1, 3, 128, 128)).astype(np.float32))
@@ -100,36 +100,36 @@ class TestPatchForensic:
 
 class TestMantraNet:
     def test_weight_file_constant(self) -> None:
-        from forenscope.models.mantranet import MantraNet
+        from certainaity.models.mantranet import MantraNet
         assert MantraNet.WEIGHT_FILE == "mantranet_finetuned.pth"
 
     def test_model_name_constant(self) -> None:
-        from forenscope.models.mantranet import MantraNet
+        from certainaity.models.mantranet import MantraNet
         assert MantraNet.MODEL_NAME == ModelName.MANTRA_NET
 
     def test_instantiates_without_weights(self, weights_dir: Path) -> None:
-        from forenscope.models.mantranet import MantraNet
+        from certainaity.models.mantranet import MantraNet
         model = MantraNet(weights_dir)
         assert model is not None
 
     def test_raises_weights_not_found_on_predict(
         self, weights_dir: Path, dummy_rgb: np.ndarray
     ) -> None:
-        from forenscope.models.mantranet import MantraNet
+        from certainaity.models.mantranet import MantraNet
         model = MantraNet(weights_dir)
         with pytest.raises(WeightsNotFoundError):
             model.predict(dummy_rgb)
 
     def test_architecture_has_features_and_anomaly(self) -> None:
         pytest.importorskip("torchvision")
-        from forenscope.models.mantranet import _MantraNetModel
+        from certainaity.models.mantranet import _MantraNetModel
         net = _MantraNetModel()
         assert hasattr(net, "features")
         assert hasattr(net, "anomaly")
 
     def test_early_blocks_are_frozen(self) -> None:
         pytest.importorskip("torchvision")
-        from forenscope.models.mantranet import _MantraNetModel
+        from certainaity.models.mantranet import _MantraNetModel
         net = _MantraNetModel()
         for i, layer in enumerate(net.features):
             for p in layer.parameters():
@@ -146,29 +146,29 @@ class TestMantraNet:
 
 class TestSPSL:
     def test_weight_file_constant(self) -> None:
-        from forenscope.models.spsl import SPSL
+        from certainaity.models.spsl import SPSL
         assert SPSL.WEIGHT_FILE == "spsl_siamese.pth"
 
     def test_model_name_constant(self) -> None:
-        from forenscope.models.spsl import SPSL
+        from certainaity.models.spsl import SPSL
         assert SPSL.MODEL_NAME == ModelName.SPSL
 
     def test_instantiates_without_weights(self, weights_dir: Path) -> None:
-        from forenscope.models.spsl import SPSL
+        from certainaity.models.spsl import SPSL
         model = SPSL(weights_dir)
         assert model is not None
 
     def test_raises_weights_not_found_on_predict(
         self, weights_dir: Path, dummy_rgb: np.ndarray
     ) -> None:
-        from forenscope.models.spsl import SPSL
+        from certainaity.models.spsl import SPSL
         model = SPSL(weights_dir)
         with pytest.raises(WeightsNotFoundError):
             model.predict(dummy_rgb)
 
     def test_backbone_has_correct_layers(self) -> None:
         pytest.importorskip("torchvision")
-        from forenscope.models.spsl import _SPSLBackbone
+        from certainaity.models.spsl import _SPSLBackbone
         bb = _SPSLBackbone()
         assert hasattr(bb, "stem")
         assert hasattr(bb, "layer1")
@@ -179,7 +179,7 @@ class TestSPSL:
 
     def test_projection_head_output_dim(self) -> None:
         torch = pytest.importorskip("torch")
-        from forenscope.models.spsl import _ProjectionHead, _EMB_DIM
+        from certainaity.models.spsl import _ProjectionHead, _EMB_DIM
         head = _ProjectionHead()
         x = torch.zeros(4, 1024)
         out = head(x)
@@ -188,7 +188,7 @@ class TestSPSL:
     def test_projection_head_is_l2_normalised(self) -> None:
         torch = pytest.importorskip("torch")
         import torch.nn.functional as F
-        from forenscope.models.spsl import _ProjectionHead
+        from certainaity.models.spsl import _ProjectionHead
         rng = np.random.default_rng(2)
         head = _ProjectionHead()
         x = torch.from_numpy(rng.random((8, 1024)).astype(np.float32))
@@ -203,28 +203,28 @@ class TestSPSL:
 
 class TestInpaintingDetector:
     def test_weight_file_constant(self) -> None:
-        from forenscope.models.inpainting import InpaintingDetector
+        from certainaity.models.inpainting import InpaintingDetector
         assert InpaintingDetector.WEIGHT_FILE == "inpainting_detector_clip.pth"
 
     def test_model_name_constant(self) -> None:
-        from forenscope.models.inpainting import InpaintingDetector
+        from certainaity.models.inpainting import InpaintingDetector
         assert InpaintingDetector.MODEL_NAME == ModelName.INPAINTING_DETECTOR
 
     def test_instantiates_without_weights(self, weights_dir: Path) -> None:
-        from forenscope.models.inpainting import InpaintingDetector
+        from certainaity.models.inpainting import InpaintingDetector
         model = InpaintingDetector(weights_dir)
         assert model is not None
 
     def test_raises_weights_not_found_on_predict(
         self, weights_dir: Path, dummy_rgb: np.ndarray
     ) -> None:
-        from forenscope.models.inpainting import InpaintingDetector
+        from certainaity.models.inpainting import InpaintingDetector
         model = InpaintingDetector(weights_dir)
         with pytest.raises(WeightsNotFoundError):
             model.predict(dummy_rgb)
 
     def test_segmentation_head_layer_names(self) -> None:
         torch = pytest.importorskip("torch")
-        from forenscope.models.inpainting import _SegmentationHead
+        from certainaity.models.inpainting import _SegmentationHead
         head = _SegmentationHead()
         assert hasattr(head, "proj")

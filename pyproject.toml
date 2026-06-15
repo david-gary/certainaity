@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "forenscope"
+name = "certainaity"
 version = "1.1.0"  # released 2026-06-12
 description = "Forensic image manipulation detection system"
 requires-python = ">=3.11"
@@ -65,10 +65,10 @@ dev = [
 ]
 
 [project.scripts]
-forenscope = "forenscope.cli:main"
+certainaity = "certainaity.cli:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/forenscope"]
+packages = ["src/certainaity"]
 
 [tool.ruff]
 line-length = 100
@@ -88,7 +88,7 @@ asyncio_mode = "auto"
 addopts = "--tb=short"
 
 [tool.coverage.run]
-source = ["forenscope"]
+source = ["certainaity"]
 branch = true
 
 [tool.coverage.report]

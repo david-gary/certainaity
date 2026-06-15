@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: forenscope-output
-  namespace: forenscope
+  name: certainaity-output
+  namespace: certainaity
 spec:
   accessModes: [ReadWriteMany]
   storageClassName: standard
@@ -13,8 +13,8 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: forenscope-weights
-  namespace: forenscope
+  name: certainaity-weights
+  namespace: certainaity
 spec:
   accessModes: [ReadOnlyMany]
   storageClassName: standard

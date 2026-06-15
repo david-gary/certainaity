@@ -15,8 +15,8 @@ services:
     deploy:
       replicas: 1
     environment:
-      FORENSCOPE_USE_CPU: "true"
-      FORENSCOPE_RATE_LIMIT_PER_MINUTE: "120"
+      CERTAINAITY_USE_CPU: "true"
+      CERTAINAITY_RATE_LIMIT_PER_MINUTE: "120"
     # Expose the API directly so you can curl/benchmark without nginx.
     ports:
       - "8000:8000"
@@ -25,7 +25,7 @@ services:
     deploy:
       replicas: 1
     environment:
-      FORENSCOPE_USE_CPU: "true"
+      CERTAINAITY_USE_CPU: "true"
     # Replace the NVIDIA runtime with the default runc runtime for CPU-only dev.
     # Remove this line if you have a local NVIDIA GPU and want to test GPU inference.
     runtime: runc

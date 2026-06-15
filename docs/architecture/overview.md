@@ -14,7 +14,7 @@ Browser / CLI             │   Client     │
                                  │
                ┌─────────────────▼─────────────────┐
                │          FastAPI (2 replicas)      │
-               │          forenscope.api            │
+               │          certainaity.api            │
                │                                   │
                │  POST /v1/analyze  ──────────────▶ enqueue(Celery)
                │  GET  /v1/jobs/:id ◀── poll state ─ Redis
@@ -24,7 +24,7 @@ Browser / CLI             │   Client     │
                                   │ Redis pub/sub
                ┌──────────────────▼────────────────┐
                │         Celery worker              │
-               │         forenscope.worker          │
+               │         certainaity.worker          │
                │                                   │
                │  1. ingest_image()                 │
                │  2. _extract_features()  [4 threads]
@@ -51,14 +51,14 @@ The API emits four Prometheus metrics:
 
 | Metric | Type | Labels |
 |--------|------|--------|
-| `forenscope_http_requests_total` | Counter | `method`, `endpoint`, `status_code` |
-| `forenscope_http_request_duration_seconds` | Histogram | `endpoint` |
-| `forenscope_jobs_submitted_total` | Counter | — |
-| `forenscope_jobs_rejected_total` | Counter | `reason` |
+| `certainaity_http_requests_total` | Counter | `method`, `endpoint`, `status_code` |
+| `certainaity_http_request_duration_seconds` | Histogram | `endpoint` |
+| `certainaity_jobs_submitted_total` | Counter | — |
+| `certainaity_jobs_rejected_total` | Counter | `reason` |
 
 `/v1/jobs/{job_id}` paths are normalised to `/v1/jobs/{job_id}` before labeling to prevent cardinality explosion.
 
-The Grafana dashboard (`monitoring/grafana/dashboards/forenscope.json`) displays throughput, latency percentiles, and job queue health.
+The Grafana dashboard (`monitoring/grafana/dashboards/certainaity.json`) displays throughput, latency percentiles, and job queue health.
 
 ## Security boundaries
 

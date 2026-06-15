@@ -1,8 +1,8 @@
-# ForenScope — Model Training Plan
+# Certainaity — Model Training Plan
 
 ## Overview
 
-Four models are trained independently and then combined via a learned weighted ensemble. Training for each model follows the same general loop but with model-specific loss functions, architectures, and hyperparameters. All training runs are logged to MLflow; experiment names follow the convention `forenscope/<model_name>/<run_id>`.
+Four models are trained independently and then combined via a learned weighted ensemble. Training for each model follows the same general loop but with model-specific loss functions, architectures, and hyperparameters. All training runs are logged to MLflow; experiment names follow the convention `certainaity/<model_name>/<run_id>`.
 
 ---
 

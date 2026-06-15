@@ -1,4 +1,4 @@
-# ForenScope — Testing Strategy
+# Certainaity — Testing Strategy
 
 ## Goals
 
@@ -99,8 +99,8 @@ def test_sha256_correctness():
 def test_sha256_computed_before_processing():
     # Inject a mock that records call order
     order = []
-    with patch("forenscope.ingest.compute_sha256", side_effect=lambda x: (order.append("hash"), "abc")[1]):
-        with patch("forenscope.ingest.extract_exif", side_effect=lambda x: (order.append("exif"), {})[1]):
+    with patch("certainaity.ingest.compute_sha256", side_effect=lambda x: (order.append("hash"), "abc")[1]):
+        with patch("certainaity.ingest.extract_exif", side_effect=lambda x: (order.append("exif"), {})[1]):
             ingest_image("fixtures/authentic/pristine_landscape.jpg")
     assert order[0] == "hash", "SHA-256 must be computed first"
 
@@ -228,7 +228,7 @@ mlflow.log_metrics(summary)
 | Inpainting Det. | Synthetic test | ≥ 0.94 (AUC) | ≥ 0.94 |
 | **Ensemble** | CASIA + NIST 16 | **≥ 0.84** | **≥ 0.91** |
 
-**Regression gate**: if any model's F1 drops by more than 1 pp from its baseline in `benchmarks/baseline.json`, the nightly run posts an alert to the `#forenscope-alerts` Slack channel and blocks the next deployment.
+**Regression gate**: if any model's F1 drops by more than 1 pp from its baseline in `benchmarks/baseline.json`, the nightly run posts an alert to the `#certainaity-alerts` Slack channel and blocks the next deployment.
 
 ---
 
@@ -249,13 +249,13 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
       - run: pip install -e ".[dev]"
-      - run: pytest tests/unit/ -v --tb=short --cov=forenscope --cov-report=xml
+      - run: pytest tests/unit/ -v --tb=short --cov=certainaity --cov-report=xml
       - uses: codecov/codecov-action@v4
 
   integration:
     runs-on: ubuntu-latest
     env:
-      FORENSCOPE_USE_CPU: "1"   # run models on CPU in CI
+      CERTAINAITY_USE_CPU: "1"   # run models on CPU in CI
     steps:
       - uses: actions/checkout@v4
       - run: pip install -e ".[dev]"
@@ -275,7 +275,7 @@ jobs:
     runs-on: [self-hosted, gpu]
     steps:
       - uses: actions/checkout@v4
-      - run: python -m forenscope.benchmark.run_all --log-mlflow
+      - run: python -m certainaity.benchmark.run_all --log-mlflow
 ```
 
 ---
@@ -298,7 +298,7 @@ Coverage is measured with `pytest-cov`; the threshold is enforced in CI (`--cov-
 
 ## Chain-of-Custody Test Protocol
 
-Because ForenScope may be used in legal proceedings, a specific protocol governs SHA-256 integrity:
+Because Certainaity may be used in legal proceedings, a specific protocol governs SHA-256 integrity:
 
 1. A dedicated test `test_chain_of_custody.py` runs on every pull request.
 2. It submits a fixture image, records the returned SHA-256, then independently computes the SHA-256 from the original file.

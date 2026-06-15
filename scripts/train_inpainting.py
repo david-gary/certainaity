@@ -74,8 +74,8 @@ def main() -> None:
     import mlflow
     from torch.utils.data import DataLoader
 
-    from forenscope.data.dataset import ForensicDataset
-    from forenscope.models.inpainting import _InpaintingDetectorModel
+    from certainaity.data.dataset import ForensicDataset
+    from certainaity.models.inpainting import _InpaintingDetectorModel
 
     torch.manual_seed(args.seed)
 

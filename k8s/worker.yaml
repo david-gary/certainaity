@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: forenscope-worker
-  namespace: forenscope
+  name: certainaity-worker
+  namespace: certainaity
   labels:
-    app: forenscope-worker
+    app: certainaity-worker
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: forenscope-worker
+      app: certainaity-worker
   template:
     metadata:
       labels:
-        app: forenscope-worker
+        app: certainaity-worker
     spec:
       securityContext:
         runAsNonRoot: true
@@ -21,10 +21,10 @@ spec:
         runAsGroup: 10001
       containers:
         - name: worker
-          image: ghcr.io/david-gary/forenscope-worker:latest
+          image: ghcr.io/david-gary/certainaity-worker:latest
           envFrom:
             - configMapRef:
-                name: forenscope-config
+                name: certainaity-config
           env:
             - name: CUDA_VISIBLE_DEVICES
               value: "0"
@@ -45,10 +45,10 @@ spec:
       volumes:
         - name: output
           persistentVolumeClaim:
-            claimName: forenscope-output
+            claimName: certainaity-output
         - name: weights
           persistentVolumeClaim:
-            claimName: forenscope-weights
+            claimName: certainaity-weights
       # Schedule worker pods on GPU nodes.
       nodeSelector:
         accelerator: nvidia
