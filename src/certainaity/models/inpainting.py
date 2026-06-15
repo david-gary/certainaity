@@ -49,10 +49,14 @@ class _SegmentationHead(nn.Module):
         Returns:
             (B, 1, H, W) float32 sigmoid probability map
         """
-        raise NotImplementedError(
-            "InpaintingDetector forward pass requires trained weights. "
-            "Run scripts/train_inpainting.py to produce a checkpoint."
-        )
+        B = patch_tokens.shape[0]
+        # (B, N, D) → (B, N, 1) via per-token linear projection
+        scores = self.proj(patch_tokens)
+        # Reshape to spatial grid: (B, 1, 14, 14)
+        scores = scores.view(B, 1, _PATCH_GRID, _PATCH_GRID)
+        # Bilinear upsample to original image resolution
+        out = F.interpolate(scores, size=target_size, mode="bilinear", align_corners=False)
+        return torch.sigmoid(out)
 
 
 class _InpaintingDetectorModel(nn.Module):

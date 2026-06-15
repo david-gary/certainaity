@@ -35,11 +35,11 @@ class _LocalAnomalyHead(nn.Module):
         )
 
     def forward(self, feat: "torch.Tensor") -> "torch.Tensor":
-        # Placeholder: full z-score implementation requires trained scale/bias.
-        raise NotImplementedError(
-            "MantraNet forward pass requires trained weights. "
-            "Run scripts/train_mantranet.py to produce a checkpoint."
-        )
+        local_mean = self.local_avg(feat)
+        # Var[X] = E[X²] – E[X]²
+        local_var = (self.local_avg(feat ** 2) - local_mean ** 2).clamp(min=0.0)
+        z = (feat - local_mean) / (local_var.sqrt() + 1e-6)
+        return torch.sigmoid(self.proj(z))
 
 
 class _MantraNetModel(nn.Module):
