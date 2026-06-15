@@ -43,7 +43,7 @@ export default function App() {
       <header className="border-b border-gray-800 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <span className="text-2xl font-bold tracking-tight text-white">
-            Foren<span className="text-brand-500">Scope</span>
+            Certain<span className="text-brand-500">aity</span>
           </span>
           <span className="text-xs text-gray-500 mt-1">v1.1</span>
         </div>
