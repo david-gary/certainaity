@@ -341,6 +341,7 @@ eggs/
 .eggs/
 lib/
 lib64/
+!frontend/src/lib/
 parts/
 sdist/
 var/
@@ -659,7 +660,8 @@ azure-pipelines-*.yml.lock
 local.settings.json
 
 # Vercel
-.vercel/
+.vercel/*
+!.vercel/project.json
 .vc-config.json
 
 # Netlify
