@@ -27,6 +27,35 @@ Certainaity uses Docker Compose with five services: `nginx`, `api`, `worker`, `r
 | NVIDIA Container Toolkit | 1.14+ |
 | Disk | 20 GB (weights + outputs) |
 
+## Vercel + Railway (recommended split hosting)
+
+Use Vercel for the React frontend and Railway for the FastAPI backend.
+
+1. Deploy API to Railway from repo root.
+1. Railway will use `railway.toml` and `nixpacks.toml` to build with Python 3.11 and install `.[api]` extras.
+1. Configure Railway environment variables (minimum):
+
+```bash
+CERTAINAITY_REDIS_URL=redis://<your-redis-host>:6379/0
+CERTAINAITY_OUTPUT_DIR=/tmp/certainaity-output
+CERTAINAITY_JWT_PUBLIC_KEY="-----BEGIN PUBLIC KEY-----\\n...\\n-----END PUBLIC KEY-----"
+```
+
+1. Copy your Railway public API URL, for example:
+
+```bash
+https://your-api.up.railway.app
+```
+
+1. Deploy frontend to Vercel from repo root (the root `vercel.json` builds `frontend/`).
+1. In Vercel project environment variables, set:
+
+```bash
+VITE_API_BASE_URL=https://your-api.up.railway.app
+```
+
+1. Redeploy Vercel after saving the variable so the value is embedded at build time.
+
 ## Step-by-step
 
 ### 1. Clone and configure
@@ -94,6 +123,7 @@ docker compose up -d   # auto-merges docker-compose.override.yml
 ```
 
 The override:
+
 - Replaces the NVIDIA runtime with `runc`
 - Sets `CERTAINAITY_USE_CPU=true`
 - Exposes ports 8000 (API) and 6379 (Redis) directly

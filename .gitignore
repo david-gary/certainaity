@@ -660,8 +660,7 @@ azure-pipelines-*.yml.lock
 local.settings.json
 
 # Vercel
-.vercel/*
-!.vercel/project.json
+.vercel/
 .vc-config.json
 
 # Netlify
@@ -960,3 +959,5 @@ ngrok.yml
 .claude/
 
 plans/
+.vercel
+.env*.local

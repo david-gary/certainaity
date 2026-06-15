@@ -22,7 +22,8 @@ WORKDIR /app
 
 # Install only the wheel + api extras; no build tools in the final image.
 COPY --from=builder /dist/*.whl /tmp/
-RUN pip install --no-cache-dir /tmp/*.whl"[api]" \
+RUN WHEEL="$(ls /tmp/*.whl | head -n 1)" \
+    && pip install --no-cache-dir "${WHEEL}[api]" \
     && rm -f /tmp/*.whl
 
 # Output dir writable by appuser; secrets mounted at runtime (Docker secrets).
@@ -41,8 +42,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 CMD ["uvicorn", "certainaity.api.main:app", \
-     "--host", "0.0.0.0", \
-     "--port", "8000", \
-     "--workers", "4", \
-     "--loop", "uvloop", \
-     "--access-log"]
+    "--host", "0.0.0.0", \
+    "--port", "8000", \
+    "--workers", "4", \
+    "--loop", "uvloop", \
+    "--access-log"]

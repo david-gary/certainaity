@@ -1,14 +1,16 @@
 """JWT RS256 bearer-token verification middleware.
 
-The API service mounts the JWT public key as a Docker secret at
-``CERTAINAITY_JWT_PUBLIC_KEY_PATH`` (default: ``secrets/jwt_public.pem``).
-Tokens must be signed with the corresponding private key (RS256).
+The API service can load the JWT public key from either:
+- ``CERTAINAITY_JWT_PUBLIC_KEY`` (PEM content as env var, useful on PaaS)
+- ``CERTAINAITY_JWT_PUBLIC_KEY_PATH`` (path on disk, default: ``secrets/jwt_public.pem``)
 
+Tokens must be signed with the corresponding private key (RS256).
 Use ``scripts/generate_keys.py`` to create a development key pair.
 """
 
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 from pathlib import Path
 
@@ -45,7 +47,13 @@ def verify_jwt(
 
     settings = get_settings()
     try:
-        public_key = _load_public_key(settings.jwt_public_key_path)
+        public_key_env = os.environ.get("CERTAINAITY_JWT_PUBLIC_KEY")
+        if public_key_env:
+            # Railway and other PaaS environments commonly store multiline PEM
+            # values with literal "\\n" sequences in env vars.
+            public_key = public_key_env.replace("\\n", "\n")
+        else:
+            public_key = _load_public_key(settings.jwt_public_key_path)
         payload: dict = jwt.decode(
             credentials.credentials,
             public_key,
