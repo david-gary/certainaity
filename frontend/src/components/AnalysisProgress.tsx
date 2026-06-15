@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchReport, pollJob } from "../lib/api";
 import type { AnalysisReport } from "../types/api";
 
@@ -23,7 +23,6 @@ interface Props {
 export default function AnalysisProgress({ jobId, token, onComplete, onError }: Props) {
   const [currentStage, setCurrentStage] = useState<Stage | null>(null);
   const [dots, setDots] = useState("");
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     const dotsInterval = setInterval(() => {
