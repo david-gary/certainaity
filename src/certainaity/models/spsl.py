@@ -139,7 +139,10 @@ class SPSL(ForensicModel):
             )
         self._model = _SPSLModel().to(self._device)
         state = torch.load(self.weight_path, map_location=self._device, weights_only=True)
-        self._model.load_state_dict(state)
+        # Training saves the bare _SPSLBackbone state_dict (keys like
+        # "stem.0.weight"); the inference wrapper holds it as self.backbone, so
+        # load into that submodule rather than the whole _SPSLModel.
+        self._model.backbone.load_state_dict(state)
         self._model.eval()
         # Load FAISS index if co-located with the checkpoint.
         index_path = self._weights_dir / "spsl_faiss.index"

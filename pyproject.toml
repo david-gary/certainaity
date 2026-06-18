@@ -55,6 +55,9 @@ train = [
     "faiss-cpu>=1.8",
     "scipy>=1.12",
 ]
+modal = [
+    "modal>=0.64",
+]
 dev = [
     "pytest>=8.0",
     "pytest-asyncio>=0.23",

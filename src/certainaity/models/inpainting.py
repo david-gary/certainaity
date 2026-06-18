@@ -15,16 +15,16 @@ try:
 except ImportError:
     _TORCH_AVAILABLE = False
 
-# CLIP ViT-B/32 operates on 224×224 images divided into 16×16 patches → 14×14 grid.
+# CLIP ViT-B/32 operates on 224×224 images divided into 32×32 patches → 7×7 grid.
 _CLIP_SIZE = 224
-_PATCH_GRID = 14     # 224 // 16 = 14
+_PATCH_GRID = 7      # 224 // 32 = 7
 _CLIP_EMB_DIM = 768  # ViT-B/32 transformer hidden dimension
 
 
 class _SegmentationHead(nn.Module):
     """Per-patch linear projection → sigmoid → bilinear upsample to full resolution.
 
-    Accepts the 196 (14×14) non-CLS patch tokens from CLIP's last hidden state
+    Accepts the 49 (7×7) non-CLS patch tokens from CLIP's last hidden state
     and produces a per-pixel manipulation probability map at the original image size.
     """
 
@@ -43,7 +43,7 @@ class _SegmentationHead(nn.Module):
     ) -> "torch.Tensor":
         """
         Args:
-            patch_tokens: (B, N, D) — N = _PATCH_GRID² = 196
+            patch_tokens: (B, N, D) — N = _PATCH_GRID² = 49
             target_size:  (H, W) to upsample the output map to
 
         Returns:
@@ -89,12 +89,36 @@ class _InpaintingDetectorModel(nn.Module):
         x_clip = x_resized * 2.0 - 1.0
         outputs = self.clip(pixel_values=x_clip)
         # last_hidden_state: (B, N+1, D) — index 0 is the CLS token.
-        patch_tokens = outputs.last_hidden_state[:, 1:, :]   # (B, 196, 768)
+        patch_tokens = outputs.last_hidden_state[:, 1:, :]   # (B, 49, 768)
         return self.head(patch_tokens, target_size=(H, W))
 
     def unfreeze_clip_layers(self, num_layers: int) -> None:
-        """Unfreeze the last ``num_layers`` transformer encoder layers in CLIP."""
-        encoder_layers = self.clip.vision_model.encoder.layers
+        """Unfreeze the last ``num_layers`` transformer encoder layers in CLIP.
+
+        Locates the encoder layer ``ModuleList`` robustly: the attribute path
+        (e.g. ``vision_model.encoder.layers``) varies across ``transformers``
+        versions, so we fall back to searching named submodules.
+        """
+        encoder_layers = None
+        # Preferred path on most transformers versions.
+        module = self.clip
+        for attr in ("vision_model", "encoder", "layers"):
+            module = getattr(module, attr, None)
+            if module is None:
+                break
+        if isinstance(module, nn.ModuleList):
+            encoder_layers = module
+        # Fallback: find the encoder layer list by name.
+        if encoder_layers is None:
+            for name, mod in self.clip.named_modules():
+                if isinstance(mod, nn.ModuleList) and name.endswith("encoder.layers"):
+                    encoder_layers = mod
+                    break
+        if encoder_layers is None:
+            raise RuntimeError(
+                "Could not locate CLIP encoder layers to unfreeze; "
+                "transformers structure may have changed."
+            )
         for layer in encoder_layers[-num_layers:]:
             for p in layer.parameters():
                 p.requires_grad_(True)

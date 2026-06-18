@@ -961,3 +961,8 @@ ngrok.yml
 plans/
 .vercel
 .env*.local
+
+# Local demo scripts and generated output
+demo/
+
+private/
